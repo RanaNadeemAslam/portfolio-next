@@ -9,6 +9,9 @@ export const metadata: Metadata = {
   title: "Blog — Android & Kotlin Development Articles",
   description:
     "In-depth articles on Android development, Kotlin, Jetpack Compose, Swift, and mobile app architecture. Tips, tutorials, and best practices by Nadeem Aslam, Senior Android Developer.",
+  alternates: {
+    canonical: "https://nadeemaslam.dev/blog",
+  },
   keywords: [
     "Android development blog",
     "Kotlin tutorials",

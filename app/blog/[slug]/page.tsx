@@ -30,11 +30,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: post.metadata.title,
     description: post.metadata.description,
+    alternates: {
+      canonical: `https://nadeemaslam.dev/blog/${slug}`,
+    },
     openGraph: {
       title: post.metadata.title,
       description: post.metadata.description,
       type: "article",
       publishedTime: post.metadata.date,
+      authors: ["Nadeem Aslam"],
+      tags: post.metadata.tags,
+      url: `https://nadeemaslam.dev/blog/${slug}`,
       images: post.metadata.cover ? [post.metadata.cover] : ["/assets/portrait.png"],
     },
     twitter: {
@@ -61,8 +67,41 @@ export default async function BlogPostPage({ params }: Props) {
     notFound();
   }
 
+  const jsonLdArticle = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.metadata.title,
+    description: post.metadata.description,
+    datePublished: post.metadata.date,
+    dateModified: post.metadata.date,
+    author: {
+      "@type": "Person",
+      name: "Nadeem Aslam",
+      url: "https://nadeemaslam.dev",
+      jobTitle: "Senior Android Developer",
+    },
+    publisher: {
+      "@type": "Person",
+      name: "Nadeem Aslam",
+      url: "https://nadeemaslam.dev",
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `https://nadeemaslam.dev/blog/${slug}`,
+    },
+    image: post.metadata.cover
+      ? `https://nadeemaslam.dev${post.metadata.cover}`
+      : "https://nadeemaslam.dev/assets/portrait.png",
+    keywords: post.metadata.tags.join(", "),
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdArticle) }}
+      />
+
       <Nav />
       <OutboundTracker />
 

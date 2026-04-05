@@ -7,9 +7,27 @@ import OutboundTracker from "@/components/outbound-tracker";
 import { projects, type Project, type Platform } from "@/lib/data";
 
 export const metadata: Metadata = {
-  title: "Work",
+  title: "Work — Android & iOS Apps Portfolio",
   description:
     "Mobile apps built by Nadeem Aslam. Virtual 5G (8.9M downloads), VPN Express, Smart IPTV, Orion AI and more. Android and iOS development portfolio.",
+  alternates: {
+    canonical: "https://nadeemaslam.dev/work",
+  },
+  keywords: [
+    "Android apps portfolio",
+    "iOS apps portfolio",
+    "mobile developer work",
+    "Kotlin apps",
+    "Swift apps",
+    "Play Store developer",
+    "App Store developer",
+  ],
+  openGraph: {
+    title: "Work — Nadeem Aslam | Android & iOS Apps Portfolio",
+    description:
+      "Mobile apps built by Nadeem Aslam. 5M+ downloads across Play Store and App Store.",
+    url: "https://nadeemaslam.dev/work",
+  },
 };
 
 /* ── Helpers ─────────────────────────────────────────────────────────────── */
