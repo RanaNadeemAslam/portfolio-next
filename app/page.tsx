@@ -508,7 +508,7 @@ export default function Home() {
             <TestimonialCarousel testimonials={testimonials} />
 
             <div className="mt-10 flex items-center justify-center gap-3">
-              <span className="inline-flex items-center gap-1 bg-foreground text-white text-[0.82rem] font-bold px-3 py-1.5 rounded-full">
+              <span className="inline-flex items-center gap-1 bg-[#f5a623]/15 text-[#f5a623] text-[0.82rem] font-bold px-3 py-1.5 rounded-full">
                 5.0 <span className="text-[#f5a623]">&#9733;</span>
               </span>
               <span className="text-text-muted text-[0.88rem]">

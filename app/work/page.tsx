@@ -131,7 +131,7 @@ function WorkCard({ project }: { project: Project }) {
       href={project.storeUrl}
       target="_blank"
       rel="noopener"
-      className="block py-[60px] border-b border-border border-l-[3px] border-l-transparent hover:border-l-accent pl-5 transition-[border-color] duration-300 max-md:py-10 max-sm:py-8"
+      className="block py-[60px] border-b border-border transition-colors duration-300 max-md:py-10 max-sm:py-8"
     >
       {/* Text content */}
       <div className="mb-10 max-sm:mb-6">
