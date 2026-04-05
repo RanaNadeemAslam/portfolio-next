@@ -4,6 +4,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import rehypePrettyCode from "rehype-pretty-code";
+import remarkGfm from "remark-gfm";
 import Nav from "@/components/nav";
 import Footer from "@/components/footer";
 import OutboundTracker from "@/components/outbound-tracker";
@@ -47,6 +48,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 const mdxOptions = {
   mdxOptions: {
+    remarkPlugins: [remarkGfm] as any,
     rehypePlugins: [[rehypePrettyCode, { theme: "github-dark-dimmed" }]] as any,
   },
 };
@@ -65,16 +67,7 @@ export default async function BlogPostPage({ params }: Props) {
       <OutboundTracker />
 
       <main id="main" className="flex-1 pt-[72px]">
-        <article className="max-w-[720px] mx-auto px-10 py-20">
-          {/* Back link */}
-          <Link
-            href="/blog"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-text-muted hover:text-accent transition-colors mb-10"
-          >
-            &larr; Back to blog
-          </Link>
-
-          {/* Post header */}
+        <article className="max-w-[800px] mx-auto px-10 py-20">
           <header className="mb-10">
             <div className="flex items-center gap-3 text-text-muted text-[0.82rem] mb-4">
               <time dateTime={post.metadata.date}>
@@ -88,7 +81,7 @@ export default async function BlogPostPage({ params }: Props) {
               <span>{post.readingTime}</span>
             </div>
 
-            <h1 className="font-heading text-3xl md:text-[2.5rem] font-extrabold tracking-tight leading-[1.15] mb-4">
+            <h1 className="font-heading text-3xl md:text-[2.8rem] font-extrabold tracking-tight leading-[1.15] mb-4">
               {post.metadata.title}
             </h1>
 
@@ -106,7 +99,7 @@ export default async function BlogPostPage({ params }: Props) {
             )}
 
             {post.metadata.cover && (
-              <div className="relative w-full aspect-[2/1] rounded-2xl overflow-hidden border border-border-light mb-2">
+              <div className="relative w-full aspect-[2.2/1] rounded-2xl overflow-hidden border border-border-light">
                 <Image
                   src={post.metadata.cover}
                   alt={post.metadata.title}

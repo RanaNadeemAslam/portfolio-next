@@ -62,6 +62,13 @@ export default function Nav() {
         >
           Work
         </Link>
+        <Link
+          href="/blog"
+          onClick={closeNav}
+          className="text-[1.1rem] font-semibold text-foreground py-3.5 w-full border-b border-border-light"
+        >
+          Blog
+        </Link>
         <a
           href="https://www.linkedin.com/in/nadeem-aslam-android/"
           target="_blank"
@@ -106,6 +113,12 @@ export default function Nav() {
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
               Work
+            </Link>
+            <Link
+              href="/blog"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Blog
             </Link>
             <a
               href="https://www.linkedin.com/in/nadeem-aslam-android/"
