@@ -1,0 +1,69 @@
+---
+title: "Kotlin Coroutines: A Practical Guide for Android Developers"
+date: "2026-04-05"
+description: "Everything you need to know about Kotlin Coroutines — Dispatchers, Scopes, Flow, and common mistakes to avoid."
+cover: "/assets/icon-virtual5g.png"
+tags: ["kotlin", "android", "coroutines"]
+---
+
+## What are Coroutines?
+
+Coroutines are a way to write asynchronous code that looks synchronous. They simplify background threading in Android development.
+
+### Why Coroutines over Threads?
+
+Traditional threading in Android is verbose and error-prone:
+
+```kotlin
+// The old way — callback hell
+apiService.fetchUser(userId, object : Callback<User> {
+    override fun onSuccess(user: User) {
+        apiService.fetchPosts(user.id, object : Callback<List<Post>> {
+            override fun onSuccess(posts: List<Post>) {
+                runOnUiThread { updateUI(user, posts) }
+            }
+        })
+    }
+})
+```
+
+With coroutines, the same logic becomes:
+
+```kotlin
+// The coroutine way — clean and readable
+viewModelScope.launch {
+    val user = apiService.fetchUser(userId)
+    val posts = apiService.fetchPosts(user.id)
+    updateUI(user, posts)
+}
+```
+
+## Dispatchers
+
+Every coroutine runs on a dispatcher that determines which thread it uses:
+
+```kotlin
+Dispatchers.Main    // UI thread — update views
+Dispatchers.IO      // Network, database, file operations
+Dispatchers.Default // CPU-intensive work (sorting, parsing)
+```
+
+### Switching Dispatchers
+
+```kotlin
+viewModelScope.launch(Dispatchers.IO) {
+    val data = repository.fetchData()    // runs on IO
+    
+    withContext(Dispatchers.Main) {
+        textView.text = data.toString()  // switch to Main for UI
+    }
+}
+```
+
+## Common Mistakes
+
+1. **Using `GlobalScope`** — It lives forever and leaks memory
+2. **Not using `SupervisorJob`** — One failed child cancels all siblings
+3. **Blocking the Main thread** — Never call `runBlocking` on Main
+4. **Ignoring cancellation** — Always check `isActive` in long loops
+5. **Not using `flowOn`** — Flow collectors run on the caller's dispatcher by default

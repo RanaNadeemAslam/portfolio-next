@@ -1,65 +1,642 @@
 import Image from "next/image";
+import Link from "next/link";
+import Nav from "@/components/nav";
+import Footer from "@/components/footer";
+import OutboundTracker from "@/components/outbound-tracker";
+import Button from "@/components/button";
+import SectionLabel from "@/components/section-label";
+import SectionHeading from "@/components/section-heading";
+import AnimateOnScroll from "@/components/animate-on-scroll";
+import StaggerIn from "@/components/stagger-in";
+import SkillsStrip from "@/components/skills-strip";
+import ContactForm from "@/components/contact-form";
+import TestimonialCarousel from "@/components/testimonial-carousel";
+import Counter from "@/components/counter";
+import {
+  highlights,
+  projects,
+  experience,
+  testimonials,
+  faqItems,
+  socialLinks,
+  about,
+} from "@/lib/data";
+
+const featuredProjects = projects.filter((p) => p.featured);
+
+const platformLabel: Record<string, string> = {
+  android: "Android",
+  ios: "iOS",
+  both: "Android & iOS",
+};
+
+const platformColor: Record<string, string> = {
+  android: "text-android",
+  ios: "text-ios",
+  both: "text-both",
+};
+
+const jsonLdPerson = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: "Nadeem Aslam",
+  jobTitle: "Senior Mobile Developer",
+  description:
+    "Senior Mobile Developer specializing in Android and iOS app development with 6+ years of experience, 5M+ downloads, and 25+ published apps on Play Store and App Store.",
+  url: "https://nadeemaslam.dev",
+  image: "https://nadeemaslam.dev/assets/portrait.png",
+  email: "link2nadeemaslam@gmail.com",
+  telephone: "+923015311113",
+  address: {
+    "@type": "PostalAddress",
+    addressCountry: "PK",
+    addressLocality: "Islamabad",
+  },
+  sameAs: [
+    "https://www.linkedin.com/in/nadeem-aslam-android/",
+    "https://github.com/RanaNadeemAslam",
+    "https://www.fiverr.com/nadeem585",
+    "https://play.google.com/store/apps/developer?id=Adara+Inc&hl=en",
+    "https://apps.apple.com/us/developer/adara-networks/id1743034595",
+  ],
+  knowsAbout: [
+    "Android Development",
+    "iOS Development",
+    "Kotlin",
+    "Java",
+    "Swift",
+    "SwiftUI",
+    "Flutter",
+    "Jetpack Compose",
+    "React Native",
+    "Firebase",
+    "MVVM",
+    "Clean Architecture",
+    "KMM",
+    "Mobile App Development",
+    "VPN Apps",
+    "Streaming Apps",
+    "AI Chatbot Apps",
+  ],
+  alumniOf: {
+    "@type": "CollegeOrUniversity",
+    name: "University of Sargodha",
+  },
+  worksFor: {
+    "@type": "Organization",
+    name: "Invotyx",
+  },
+  hasCredential: {
+    "@type": "EducationalOccupationalCredential",
+    credentialCategory: "degree",
+    name: "BS Computer Science",
+  },
+};
+
+const jsonLdService = {
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  name: "Nadeem Aslam - Mobile App Development",
+  url: "https://nadeemaslam.dev",
+  description:
+    "Custom Android and iOS app development. Native apps in Kotlin and Swift, cross-platform apps in Flutter and React Native. From MVP to production with Play Store and App Store deployment.",
+  areaServed: "Worldwide",
+  priceRange: "$$",
+  aggregateRating: {
+    "@type": "AggregateRating",
+    ratingValue: "5.0",
+    reviewCount: "69",
+    bestRating: "5",
+  },
+  makesOffer: [
+    {
+      "@type": "Offer",
+      itemOffered: {
+        "@type": "Service",
+        name: "Android App Development (Kotlin, Java)",
+      },
+    },
+    {
+      "@type": "Offer",
+      itemOffered: {
+        "@type": "Service",
+        name: "iOS App Development (Swift, SwiftUI)",
+      },
+    },
+    {
+      "@type": "Offer",
+      itemOffered: {
+        "@type": "Service",
+        name: "Cross-Platform Development (Flutter, React Native)",
+      },
+    },
+    {
+      "@type": "Offer",
+      itemOffered: { "@type": "Service", name: "VPN & Networking Apps" },
+    },
+    {
+      "@type": "Offer",
+      itemOffered: { "@type": "Service", name: "AI & Chatbot Apps" },
+    },
+    {
+      "@type": "Offer",
+      itemOffered: { "@type": "Service", name: "Streaming & IPTV Apps" },
+    },
+  ],
+};
+
+const jsonLdFaq = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: [
+    {
+      "@type": "Question",
+      name: "Who is Nadeem Aslam?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: 'Nadeem Aslam is a Senior Mobile Developer with 6+ years of experience building Android and iOS apps. He has 5M+ downloads across Play Store and App Store, 25+ published apps, and a 5.0 rating with 69 reviews on Fiverr as a Level 2 Seller.',
+      },
+    },
+    {
+      "@type": "Question",
+      name: "What mobile development services does Nadeem Aslam offer?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Nadeem offers native Android development (Kotlin, Java), native iOS development (Swift, SwiftUI), and cross-platform development (Flutter, React Native). He specializes in VPN apps, streaming/IPTV apps, AI chatbot apps, and network optimization tools.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "How can I hire Nadeem Aslam for mobile app development?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "You can hire Nadeem through Fiverr (fiverr.com/nadeem585), via email at link2nadeemaslam@gmail.com, or through WhatsApp. He works with clients worldwide and has delivered projects for clients in the US, UK, Canada, Netherlands, Saudi Arabia, and more.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "What are Nadeem Aslam's most popular apps?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "His most popular apps include Virtual 5G (8.9M downloads, 4.4 stars), VPN Express (1.7M downloads, 4.5 stars), NetOptimizer for iOS (4.7 stars, 19 languages), Smart IPTV Xtream Player (91K downloads), and Orion AI Chatbot Assistant (4.6 stars).",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "What technologies does Nadeem Aslam use?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Nadeem works with Kotlin, Java, Swift, SwiftUI, Flutter, Jetpack Compose, Kotlin Multiplatform (KMM), React Native, Firebase, MVVM architecture, Clean Architecture, REST APIs, Room Database, Core Data, ExoPlayer, and Unity Ads integration.",
+      },
+    },
+  ],
+};
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+    <>
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdPerson) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdService) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdFaq) }}
+      />
+
+      <Nav />
+
+      <main id="main" className="flex-1">
+        {/* ── Hero ──────────────────────────────────────────────────────────── */}
+        <header className="pt-[120px] pb-20">
+          <div className="max-w-[1200px] mx-auto px-10">
+            <div className="flex flex-col md:flex-row items-center gap-12 md:gap-16">
+              <div className="flex-1">
+                <StaggerIn delay={100}>
+                <h1 className="text-[clamp(2.4rem,5vw,3.8rem)] font-extrabold tracking-tight leading-[1.08] mb-6">
+                  Senior Mobile<br />Developer
+                </h1>
+                </StaggerIn>
+                <StaggerIn delay={250}>
+                <p className="text-text-secondary text-[1.08rem] leading-relaxed mb-8 max-w-[520px]">
+                  I craft high-performance Android &amp; iOS apps that users
+                  love, from startup MVPs to apps with 5M+ downloads. 6+ years
+                  of shipping to Play Store &amp; App Store.
+                </p>
+                </StaggerIn>
+                <StaggerIn delay={400}>
+                <div className="flex flex-wrap gap-4 mb-8">
+                  <Button href="#contact" variant="primary">
+                    Get in touch
+                  </Button>
+                  <Button href="/work" variant="secondary">
+                    See my work
+                  </Button>
+                </div>
+                </StaggerIn>
+                <StaggerIn delay={550}>
+                <div className="flex items-center gap-6">
+                  <a
+                    href={socialLinks.linkedin}
+                    target="_blank"
+                    rel="noopener"
+                    className="text-sm font-medium text-text-muted hover:text-foreground transition-colors"
+                  >
+                    LinkedIn
+                  </a>
+                  <a
+                    href={socialLinks.github}
+                    target="_blank"
+                    rel="noopener"
+                    className="text-sm font-medium text-text-muted hover:text-foreground transition-colors"
+                  >
+                    GitHub
+                  </a>
+                  <a
+                    href={socialLinks.fiverr}
+                    target="_blank"
+                    rel="noopener"
+                    className="text-sm font-medium text-text-muted hover:text-foreground transition-colors"
+                  >
+                    Fiverr
+                  </a>
+                </div>
+                </StaggerIn>
+              </div>
+              <StaggerIn delay={300}>
+              <div className="relative flex-shrink-0">
+                <Image
+                  src="/assets/portrait.png"
+                  alt="Nadeem Aslam"
+                  width={721}
+                  height={709}
+                  priority
+                  className="w-[320px] md:w-[420px] grayscale hover:grayscale-0 transition-all duration-500 rounded-2xl"
+                />
+                <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent pointer-events-none" />
+              </div>
+              </StaggerIn>
+            </div>
+          </div>
+        </header>
+
+        {/* ── Highlights ────────────────────────────────────────────────────── */}
+        <section className="py-24 border-t border-border" id="highlights">
+          <div className="max-w-[1200px] mx-auto px-10">
+            <SectionLabel>Highlights</SectionLabel>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {highlights.map((item, i) => (
+                <AnimateOnScroll key={i} delay={i * 100}>
+                  <div className="bg-background-white border border-border rounded-2xl p-6 md:p-8">
+                    <Counter
+                      value={item.number}
+                      className="block text-[clamp(2rem,4vw,2.8rem)] font-extrabold tracking-tight text-foreground mb-2"
+                    />
+                    <p className="text-text-muted text-[0.88rem] leading-snug">
+                      {item.label}
+                    </p>
+                  </div>
+                </AnimateOnScroll>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── About ─────────────────────────────────────────────────────────── */}
+        <section className="py-24 border-t border-border" id="about">
+          <div className="max-w-[1200px] mx-auto px-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20">
+              <div>
+                <SectionLabel>About</SectionLabel>
+                <SectionHeading>
+                  Passionate about building apps people love.
+                </SectionHeading>
+              </div>
+              <AnimateOnScroll>
+                <div>
+                  {about.paragraphs.map((p, i) => (
+                    <p
+                      key={i}
+                      className="text-text-secondary text-[0.95rem] leading-relaxed mb-5"
+                    >
+                      {p}
+                    </p>
+                  ))}
+                  <div className="mt-8 flex flex-col gap-4">
+                    <div className="flex justify-between border-b border-border pb-3">
+                      <strong className="text-[0.82rem] font-bold uppercase tracking-[1.5px] text-text-muted">
+                        Specialization
+                      </strong>
+                      <span className="text-[0.95rem] text-foreground">
+                        {about.details.specialization}
+                      </span>
+                    </div>
+                    <div className="flex justify-between border-b border-border pb-3">
+                      <strong className="text-[0.82rem] font-bold uppercase tracking-[1.5px] text-text-muted">
+                        Location
+                      </strong>
+                      <span className="text-[0.95rem] text-foreground">
+                        {about.details.location}
+                      </span>
+                    </div>
+                    <div className="flex justify-between border-b border-border pb-3">
+                      <strong className="text-[0.82rem] font-bold uppercase tracking-[1.5px] text-text-muted">
+                        Experience
+                      </strong>
+                      <span className="text-[0.95rem] text-foreground">
+                        {about.details.experience}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </AnimateOnScroll>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Skills Strip ──────────────────────────────────────────────────── */}
+        <SkillsStrip />
+
+        {/* ── Selected Projects ─────────────────────────────────────────────── */}
+        <section className="py-24 border-t border-border" id="work">
+          <div className="max-w-[1200px] mx-auto px-10">
+            <SectionLabel>Work</SectionLabel>
+            <SectionHeading>Selected projects</SectionHeading>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {featuredProjects.map((project) => (
+                <AnimateOnScroll key={project.title}>
+                  <a
+                    href={project.storeUrl}
+                    target="_blank"
+                    rel="noopener"
+                    className="group block p-5 rounded-2xl border border-border bg-background-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-accent/30 cursor-pointer"
+                  >
+                    {/* Header: Icon + Meta */}
+                    <div className="flex gap-4 mb-3">
+                      <Image
+                        src={project.icon}
+                        alt={project.title}
+                        width={64}
+                        height={64}
+                        loading="lazy"
+                        className="rounded-xl w-14 h-14 flex-shrink-0"
+                      />
+                      <div className="flex flex-col justify-center gap-0.5">
+                        <span
+                          className={`text-[0.68rem] font-bold uppercase tracking-wider ${platformColor[project.platform]}`}
+                        >
+                          {platformLabel[project.platform]}
+                        </span>
+                        {project.downloads && (
+                          <span className="text-[0.72rem] font-medium text-text-muted">
+                            {project.downloads}
+                          </span>
+                        )}
+                        {project.rating && (
+                          <span className="text-[0.72rem] font-medium text-text-muted">
+                            {project.rating}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Title + Description */}
+                    <h3 className="font-bold text-base tracking-tight mb-1.5">
+                      {project.title}
+                    </h3>
+                    <p className="text-text-secondary text-[0.82rem] leading-relaxed line-clamp-2 mb-3">
+                      {project.description}
+                    </p>
+
+                    {/* Tags */}
+                    <div className="flex flex-wrap gap-1.5">
+                      {project.tags.slice(0, 4).map((tag) => (
+                        <span
+                          key={tag}
+                          className="text-[0.7rem] px-2.5 py-0.5 rounded-full border border-border text-text-muted font-medium"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </a>
+                </AnimateOnScroll>
+              ))}
+            </div>
+
+            <div className="mt-12 text-center">
+              <Link
+                href="/work"
+                className="text-[0.95rem] font-semibold text-foreground hover:text-accent transition-colors"
+              >
+                See all projects &#8599;
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Experience ────────────────────────────────────────────────────── */}
+        <section className="py-24 border-t border-border" id="experience">
+          <div className="max-w-[1200px] mx-auto px-10">
+            <SectionLabel>Experience</SectionLabel>
+            <SectionHeading>Where I&apos;ve worked</SectionHeading>
+
+            <div className="flex flex-col">
+              {experience.slice(0, 4).map((exp, i) => (
+                <AnimateOnScroll key={i} delay={i * 80}>
+                  <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-2 md:gap-12 py-8 border-b border-border">
+                    <div>
+                      <span className="text-[0.82rem] font-semibold text-text-muted">
+                        {exp.date}
+                      </span>
+                    </div>
+                    <div>
+                      <h3 className="text-[1.1rem] font-extrabold tracking-tight text-foreground mb-1">
+                        {exp.title}
+                      </h3>
+                      <span className="text-[0.88rem] text-text-muted block mb-3">
+                        {exp.company}
+                      </span>
+                      {exp.description && (
+                        <p className="text-text-secondary text-[0.92rem] leading-relaxed">
+                          {exp.description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </AnimateOnScroll>
+              ))}
+            </div>
+
+            {/* Education */}
+            <div className="mt-12">
+              {experience.slice(4).map((exp, i) => (
+                <AnimateOnScroll key={i}>
+                  <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-2 md:gap-12 py-8 border-b border-border">
+                    <div>
+                      <span className="text-[0.82rem] font-semibold text-text-muted">
+                        {exp.date}
+                      </span>
+                    </div>
+                    <div>
+                      <h3 className="text-[1.1rem] font-extrabold tracking-tight text-foreground mb-1">
+                        {exp.title}
+                      </h3>
+                      <span className="text-[0.88rem] text-text-muted block">
+                        {exp.company}
+                      </span>
+                    </div>
+                  </div>
+                </AnimateOnScroll>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── Testimonials ──────────────────────────────────────────────────── */}
+        <section className="py-24 border-t border-border" id="testimonials">
+          <div className="max-w-[1200px] mx-auto px-10">
+            <SectionLabel>Client Reviews</SectionLabel>
+            <SectionHeading>What clients say</SectionHeading>
+
+            <TestimonialCarousel testimonials={testimonials} />
+
+            <div className="mt-10 flex items-center justify-center gap-3">
+              <span className="inline-flex items-center gap-1 bg-foreground text-white text-[0.82rem] font-bold px-3 py-1.5 rounded-full">
+                5.0 <span className="text-[#f5a623]">&#9733;</span>
+              </span>
+              <span className="text-text-muted text-[0.88rem]">
+                69 reviews on Fiverr &middot; Level 2 Seller
+              </span>
+            </div>
+
+            <div className="mt-10 text-center">
+              <Button href="#contact" variant="primary">
+                Start your project
+              </Button>
+            </div>
+          </div>
+        </section>
+
+        {/* ── FAQ ───────────────────────────────────────────────────────────── */}
+        <section className="py-24 border-t border-border" id="faq">
+          <div className="max-w-[1200px] mx-auto px-10">
+            <SectionLabel>FAQ</SectionLabel>
+            <SectionHeading>Frequently asked questions</SectionHeading>
+
+            <div className="max-w-[760px]">
+              {faqItems.map((item, i) => (
+                <AnimateOnScroll key={i} delay={i * 60}>
+                  <details className="group border-b border-border">
+                    <summary className="flex items-center justify-between cursor-pointer py-6 text-[1rem] font-semibold text-foreground list-none [&::-webkit-details-marker]:hidden">
+                      {item.question}
+                      <span className="ml-4 text-text-muted transition-transform duration-300 group-open:rotate-45 text-xl leading-none flex-shrink-0">
+                        +
+                      </span>
+                    </summary>
+                    <p className="pb-6 text-text-secondary text-[0.92rem] leading-relaxed pr-8">
+                      {item.answer}
+                    </p>
+                  </details>
+                </AnimateOnScroll>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── Contact ───────────────────────────────────────────────────────── */}
+        <section className="py-24 border-t border-border" id="contact">
+          <div className="max-w-[1200px] mx-auto px-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20">
+              <div>
+                <SectionLabel>Get in touch</SectionLabel>
+                <SectionHeading>
+                  Want to work together?
+                  <br />
+                  Drop me a line.
+                </SectionHeading>
+              </div>
+              <div>
+                <ContactForm />
+
+                <div className="flex flex-col">
+                  <a
+                    href={socialLinks.email}
+                    className="group flex items-center justify-between py-4 border-b border-border no-underline"
+                  >
+                    <span className="text-[0.78rem] font-bold uppercase tracking-[1.5px] text-text-muted">
+                      Email
+                    </span>
+                    <span className="text-[0.92rem] text-foreground group-hover:text-accent transition-colors">
+                      link2nadeemaslam@gmail.com
+                    </span>
+                    <span className="text-text-muted group-hover:translate-x-1 transition-transform">
+                      &rarr;
+                    </span>
+                  </a>
+                  <a
+                    href={socialLinks.linkedin}
+                    target="_blank"
+                    rel="noopener"
+                    className="group flex items-center justify-between py-4 border-b border-border no-underline"
+                  >
+                    <span className="text-[0.78rem] font-bold uppercase tracking-[1.5px] text-text-muted">
+                      LinkedIn
+                    </span>
+                    <span className="text-[0.92rem] text-foreground group-hover:text-accent transition-colors">
+                      nadeem-aslam-android
+                    </span>
+                    <span className="text-text-muted group-hover:translate-x-1 transition-transform">
+                      &rarr;
+                    </span>
+                  </a>
+                  <a
+                    href={socialLinks.fiverr}
+                    target="_blank"
+                    rel="noopener"
+                    className="group flex items-center justify-between py-4 border-b border-border no-underline"
+                  >
+                    <span className="text-[0.78rem] font-bold uppercase tracking-[1.5px] text-text-muted">
+                      Fiverr
+                    </span>
+                    <span className="text-[0.92rem] text-foreground group-hover:text-accent transition-colors">
+                      nadeem585
+                    </span>
+                    <span className="text-text-muted group-hover:translate-x-1 transition-transform">
+                      &rarr;
+                    </span>
+                  </a>
+                  <a
+                    href={socialLinks.whatsapp}
+                    target="_blank"
+                    rel="noopener"
+                    className="group flex items-center justify-between py-4 border-b border-border no-underline"
+                  >
+                    <span className="text-[0.78rem] font-bold uppercase tracking-[1.5px] text-text-muted">
+                      WhatsApp
+                    </span>
+                    <span className="text-[0.92rem] text-foreground group-hover:text-accent transition-colors">
+                      +92 301 531 1113
+                    </span>
+                    <span className="text-text-muted group-hover:translate-x-1 transition-transform">
+                      &rarr;
+                    </span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
-    </div>
+
+      <Footer />
+      <OutboundTracker />
+    </>
   );
 }
