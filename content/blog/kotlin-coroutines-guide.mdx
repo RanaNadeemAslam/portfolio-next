@@ -1,69 +1,589 @@
 ---
-title: "Kotlin Coroutines: A Practical Guide for Android Developers"
+title: "Kotlin Coroutines: Dispatchers, Scopes & Fundamentals"
 date: "2026-04-05"
-description: "Everything you need to know about Kotlin Coroutines — Dispatchers, Scopes, Flow, and common mistakes to avoid."
-cover: "/assets/icon-virtual5g.png"
+description: "Master the fundamentals of Kotlin Coroutines — why they exist, how suspend works, Dispatchers, Scopes, error handling, and 7 mistakes every Android developer makes."
 tags: ["kotlin", "android", "coroutines"]
+featured: true
 ---
 
-## What are Coroutines?
+*Part 1 of 3 in the Kotlin Coroutines Deep Dive series. This post covers the fundamentals — why coroutines exist, how they work under the hood, and the mistakes that ship buggy apps. Parts 2 and 3 will cover Jobs & Cancellation and Flows & Channels.*
 
-Coroutines are a way to write asynchronous code that looks synchronous. They simplify background threading in Android development.
+---
 
-### Why Coroutines over Threads?
+## The Problem Nobody Talks About
 
-Traditional threading in Android is verbose and error-prone:
+Your Android app has **one main thread**. One. That single thread is responsible for drawing every pixel on the screen, handling every tap, and keeping your animations butter-smooth.
+
+To hit 60fps, each frame gets exactly **16 milliseconds**. That's your budget. Spend it wisely.
+
+Now think about what happens when you do this on the main thread:
+
+- **Network call** — 500ms to 3 seconds. Freeze.
+- **Database query** — 50ms to 500ms. Freeze.
+- **JSON parsing** — 20ms to 200ms. Stutter.
+
+And if the main thread is blocked for more than **5 seconds**? Android kills your app with an ANR (Application Not Responding) dialog. Your user uninstalls. Your rating drops. Game over.
+
+The solution is simple in theory: **move heavy work OFF the main thread**. But doing that safely, without memory leaks, without crashes on rotation, without callback spaghetti — that's where it gets tricky.
+
+That's exactly where Coroutines come in.
+
+## A Brief History of Android's Async Pain
+
+Android developers have been trying to solve this problem since 2008. We went through four generations of solutions, and each one fixed the last one's problems while introducing new ones.
+
+**Threads & Handlers (2008)** — The OG approach. Spin up a `Thread`, do your work, post results back with a `Handler`. Problem? No lifecycle awareness. Rotate your phone and your thread keeps running, tries to update a destroyed Activity, and crashes.
 
 ```kotlin
-// The old way — callback hell
-apiService.fetchUser(userId, object : Callback<User> {
-    override fun onSuccess(user: User) {
-        apiService.fetchPosts(user.id, object : Callback<List<Post>> {
-            override fun onSuccess(posts: List<Post>) {
-                runOnUiThread { updateUI(user, posts) }
-            }
-        })
+// 2008: Threads & Handlers — crashes waiting to happen
+Thread {
+    val data = api.fetchData() // runs on background thread
+    handler.post {
+        textView.text = data // but Activity might be dead by now
     }
-})
+}.start()
 ```
 
-With coroutines, the same logic becomes:
+**AsyncTask (2009)** — Google's first attempt at fixing Threads. Cleaner API, built-in thread switching. But it held a reference to the Activity, causing **memory leaks**. It was so problematic that Google deprecated it in API 30.
+
+**RxJava (2014)** — Powerful, composable, reactive. The community loved it. But even a simple network call needed ~15 lines of boilerplate. `subscribeOn`, `observeOn`, `disposables`, `CompositeDisposable`... the learning curve was a wall.
+
+**Coroutines (2019)** — Kotlin's answer. Lightweight, lifecycle-aware, sequential-looking async code. Google made it the **official recommendation** for async work on Android. And it reads like normal code.
 
 ```kotlin
-// The coroutine way — clean and readable
+// 2019: Coroutines — clean, safe, lifecycle-aware
 viewModelScope.launch {
-    val user = apiService.fetchUser(userId)
-    val posts = apiService.fetchPosts(user.id)
-    updateUI(user, posts)
+    val data = withContext(Dispatchers.IO) { api.fetchData() }
+    textView.text = data // safe — scope cancels when ViewModel clears
 }
 ```
 
-## Dispatchers
+The evolution is clear. Coroutines aren't just another option — they're the destination Android was heading toward for over a decade.
 
-Every coroutine runs on a dispatcher that determines which thread it uses:
+## Blocking vs Suspending — The Core Concept
+
+This is the single most important concept to understand. Get this right and everything else clicks.
+
+**Blocking** means the thread sits there doing nothing. Imagine standing in a long queue at a coffee shop. You can't do anything else — you're stuck waiting.
+
+**Suspending** means the thread is freed to do other work. Imagine taking a number at the deli counter. You walk away, do your shopping, and come back when your number is called.
 
 ```kotlin
-Dispatchers.Main    // UI thread — update views
-Dispatchers.IO      // Network, database, file operations
-Dispatchers.Default // CPU-intensive work (sorting, parsing)
+// BLOCKING — the thread is held hostage
+fun loadData() {
+    Thread.sleep(5000) // thread does NOTHING for 5 seconds
+    // no other work can happen on this thread
+}
+
+// SUSPENDING — the thread is free
+suspend fun loadData() {
+    delay(5000) // thread goes and does other work for 5 seconds
+    // comes back when the delay is over
+}
 ```
 
-### Switching Dispatchers
+Here's where it gets wild. Because suspending frees the thread, you can run **thousands of coroutines on a single thread**:
 
 ```kotlin
-viewModelScope.launch(Dispatchers.IO) {
-    val data = repository.fetchData()    // runs on IO
-    
-    withContext(Dispatchers.Main) {
-        textView.text = data.toString()  // switch to Main for UI
+// This works. 1 thread, 100,000 coroutines. No sweat.
+fun main() = runBlocking {
+    repeat(100_000) {
+        launch {
+            delay(1000)
+            print(".")
+        }
     }
 }
 ```
 
-## Common Mistakes
+Try that with 100,000 threads and your app will crash before it prints the first dot.
 
-1. **Using `GlobalScope`** — It lives forever and leaks memory
-2. **Not using `SupervisorJob`** — One failed child cancels all siblings
-3. **Blocking the Main thread** — Never call `runBlocking` on Main
-4. **Ignoring cancellation** — Always check `isActive` in long loops
-5. **Not using `flowOn`** — Flow collectors run on the caller's dispatcher by default
+The numbers tell the story:
+- **Thread** = ~64KB of memory each
+- **Coroutine** = a few bytes
+
+A coroutine is not a lightweight thread. It's a **suspension point** — a place where execution can pause and resume without holding a thread hostage.
+
+## What `suspend` Actually Means
+
+When you put `suspend` in front of a function, you're telling Kotlin: "this function might take time. Don't block the thread — suspend it instead."
+
+```kotlin
+suspend fun getUser(id: String): User {
+    return withContext(Dispatchers.IO) {
+        api.fetchUser(id) // network call on IO thread
+    }
+}
+```
+
+There are two rules with `suspend`:
+
+1. A `suspend` function can only be called from another `suspend` function or from a coroutine builder (`launch`, `async`, `runBlocking`).
+2. Just marking a function `suspend` doesn't magically make it non-blocking — you still need to use `withContext` or other suspending functions inside it.
+
+```kotlin
+// This compiles but is WRONG — still blocks despite "suspend"
+suspend fun badExample() {
+    Thread.sleep(5000) // blocking call inside suspend function!
+}
+
+// This is correct — actually suspends
+suspend fun goodExample() {
+    delay(5000) // suspending call — thread is freed
+}
+```
+
+Think of `suspend` as a **contract**. It promises callers: "I won't block your thread." But it's up to you, the implementer, to keep that promise by using proper suspending calls inside.
+
+## Dispatchers — Where Your Code Runs
+
+A Dispatcher determines which thread or thread pool your coroutine runs on. Pick the wrong one and you'll either crash or starve your app of resources.
+
+There are three dispatchers you need to know:
+
+### `Dispatchers.Main`
+
+The UI thread. There's only **one**. Use it for updating views, navigating, and showing toasts.
+
+**NEVER** do network calls, database queries, or file operations here. That's how you get ANRs.
+
+### `Dispatchers.IO`
+
+A pool of **up to 64 threads** designed for waiting. Network calls, database reads, file operations — anything where the thread is mostly sitting around waiting for I/O to complete.
+
+### `Dispatchers.Default`
+
+A pool sized to the **number of CPU cores**. Use it for CPU-intensive work: sorting large lists, parsing JSON, image processing, complex calculations.
+
+```kotlin
+viewModelScope.launch {
+
+    // WRONG — network on Main thread
+    // val user = api.getUser() // NetworkOnMainThreadException!
+
+    // RIGHT — network on IO
+    val user = withContext(Dispatchers.IO) {
+        api.getUser()
+    }
+
+    // RIGHT — heavy computation on Default
+    val sorted = withContext(Dispatchers.Default) {
+        hugeList.sortedBy { it.score }
+    }
+
+    // Back on Main — update UI
+    userNameText.text = user.name
+    recyclerView.adapter = UserAdapter(sorted)
+}
+```
+
+### Switching Dispatchers with `withContext`
+
+`withContext` is how you jump between dispatchers within a single coroutine. It suspends the current coroutine, runs the block on the specified dispatcher, and returns the result.
+
+```kotlin
+suspend fun processAndSave(data: RawData): Result {
+    // Parse on Default (CPU work)
+    val parsed = withContext(Dispatchers.Default) {
+        heavyJsonParser.parse(data)
+    }
+
+    // Save on IO (disk work)
+    withContext(Dispatchers.IO) {
+        database.save(parsed)
+    }
+
+    // Return on whatever dispatcher called this
+    return Result.Success(parsed)
+}
+```
+
+A simple rule of thumb:
+- **Main** = touching the UI
+- **IO** = waiting for something (network, disk, database)
+- **Default** = crunching numbers
+
+## Scopes — Who Cancels Your Coroutine
+
+Dispatchers decide *where* your code runs. Scopes decide *how long* it lives — and more importantly, *when it dies*.
+
+An unscoped coroutine is a memory leak waiting to happen. Scopes tie coroutine lifetimes to Android lifecycle components so cleanup happens automatically.
+
+### `viewModelScope`
+
+Cancels all coroutines when the ViewModel is cleared. This is your go-to for most data loading operations.
+
+```kotlin
+class UserViewModel : ViewModel() {
+
+    fun loadUser(id: String) {
+        viewModelScope.launch {
+            val user = withContext(Dispatchers.IO) {
+                repository.getUser(id)
+            }
+            _userState.value = user
+        }
+    }
+    // When the ViewModel clears, this coroutine is automatically cancelled.
+    // No leaks. No crashes. No manual cleanup.
+}
+```
+
+### `lifecycleScope`
+
+Cancels when the Activity or Fragment is destroyed. Best for UI-specific work and collecting Flows.
+
+```kotlin
+class UserActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.userState.collect { user ->
+                    userNameText.text = user.name
+                }
+            }
+        }
+    }
+    // Coroutine cancelled when Activity is destroyed.
+}
+```
+
+### `GlobalScope` — Don't Use It
+
+`GlobalScope` lives as long as your app process. It **never** cancels automatically. That means if you launch a network call in `GlobalScope` and the user leaves the screen, the coroutine keeps running, holding references, wasting battery, leaking memory.
+
+```kotlin
+// DANGEROUS — this coroutine outlives everything
+GlobalScope.launch {
+    val data = api.fetchData() // user left 10 seconds ago...
+    updateUI(data) // ...crash — Activity is dead
+}
+
+// SAFE — automatically cancelled when ViewModel clears
+viewModelScope.launch {
+    val data = withContext(Dispatchers.IO) { api.fetchData() }
+    _state.value = data
+}
+```
+
+Unless you have a truly app-wide task (like analytics), **avoid `GlobalScope`**. Use `viewModelScope` or `lifecycleScope` instead.
+
+## Sequential vs Parallel Execution
+
+By default, coroutine code runs **sequentially** — one line after another, just like normal code. But sometimes you need things to run in parallel.
+
+### Sequential — When B Depends on A
+
+```kotlin
+viewModelScope.launch {
+    // Sequential: getPosts needs the user's ID
+    val user = withContext(Dispatchers.IO) { getUser() }       // 2 seconds
+    val posts = withContext(Dispatchers.IO) { getPosts(user.id) } // 2 seconds
+    // Total: ~4 seconds
+    showProfile(user, posts)
+}
+```
+
+This is correct when the second call depends on the first. You need the user before you can fetch their posts.
+
+### Parallel — When Tasks Are Independent
+
+```kotlin
+viewModelScope.launch {
+    // Parallel: these two don't depend on each other
+    val user = async(Dispatchers.IO) { getUser() }         // starts immediately
+    val notifs = async(Dispatchers.IO) { getNotifications() } // starts immediately
+    // Total: ~2 seconds (runs at the same time)
+    showDashboard(user.await(), notifs.await())
+}
+```
+
+`async` launches a coroutine and returns a `Deferred` — a future result. Calling `.await()` suspends until the result is ready.
+
+**The rule is simple:**
+- Use **sequential** when Task B needs the result of Task A
+- Use **parallel** (`async`/`await`) when tasks are independent
+
+The difference between 2 seconds and 4 seconds at app startup is the difference between a 5-star review and an uninstall.
+
+## Coroutines + Retrofit — It Just Works
+
+One of the best things about coroutines is how seamlessly they work with Retrofit. Just add `suspend` to your API interface methods. No `Call<>` wrapper, no `enqueue()`, no callbacks.
+
+```kotlin
+// API interface — just add suspend
+interface ApiService {
+    @GET("users/{id}")
+    suspend fun getUser(@Path("id") id: String): User
+
+    @GET("users/{id}/posts")
+    suspend fun getPosts(@Path("id") userId: String): List<Post>
+}
+```
+
+```kotlin
+// ViewModel — clean and readable
+class UserViewModel(private val api: ApiService) : ViewModel() {
+
+    private val _user = MutableStateFlow<User?>(null)
+    val user: StateFlow<User?> = _user
+
+    fun loadUser(id: String) {
+        viewModelScope.launch {
+            try {
+                val user = withContext(Dispatchers.IO) { api.getUser(id) }
+                _user.value = user
+            } catch (e: HttpException) {
+                // handle server error
+            } catch (e: IOException) {
+                // handle network error
+            }
+        }
+    }
+}
+```
+
+No `enqueue()`. No `onResponse()`. No `onFailure()`. Just a `try-catch` around a function call. That's it.
+
+## Coroutines + Room — Suspend for One-Time, Flow for Real-Time
+
+Room has first-class coroutine support. Use `suspend` for one-time operations and `Flow` for real-time observation.
+
+```kotlin
+@Dao
+interface UserDao {
+    // One-time read — returns once
+    @Query("SELECT * FROM users WHERE id = :id")
+    suspend fun getUser(id: String): User
+
+    // Real-time observation — emits every time data changes
+    @Query("SELECT * FROM users")
+    fun observeAllUsers(): Flow<List<User>>
+
+    // One-time write
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertUser(user: User)
+}
+```
+
+```kotlin
+class UserViewModel(private val dao: UserDao) : ViewModel() {
+
+    // Flow: auto-updates when any user is added, updated, or deleted
+    val allUsers: StateFlow<List<User>> = dao.observeAllUsers()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun addUser(user: User) {
+        viewModelScope.launch {
+            dao.insertUser(user)
+            // No need to manually refresh — the Flow handles it
+        }
+    }
+}
+```
+
+The `Flow` from Room emits a new list every time the underlying table changes. Insert a user? The UI updates automatically. Delete one? Automatic. No manual refresh, no `notifyDataSetChanged()`, no callbacks.
+
+## Error Handling — The Part Everyone Skips
+
+Here's a fun fact: an unhandled exception in a coroutine **crashes your entire app**. Not just the coroutine. Not just the scope. The whole app.
+
+```kotlin
+viewModelScope.launch {
+    val user = api.getUser("123") // throws IOException
+    // If you don't catch this, your app dies
+}
+```
+
+You have two approaches to prevent this.
+
+### Approach 1: try-catch (Recommended)
+
+Wrap individual operations in try-catch blocks. This is the most explicit and readable approach.
+
+```kotlin
+viewModelScope.launch {
+    try {
+        val user = withContext(Dispatchers.IO) { api.getUser("123") }
+        _user.value = user
+    } catch (e: HttpException) {
+        _error.value = "Server error: ${e.code()}"
+    } catch (e: IOException) {
+        _error.value = "Check your internet connection"
+    }
+}
+```
+
+### Approach 2: CoroutineExceptionHandler (Safety Net)
+
+A global handler that catches anything that slips through your try-catch blocks.
+
+```kotlin
+private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+    // Log to Crashlytics, show generic error
+    _error.value = "Something went wrong"
+    Log.e("UserViewModel", "Coroutine failed", throwable)
+}
+
+fun loadUser(id: String) {
+    viewModelScope.launch(exceptionHandler) {
+        val user = withContext(Dispatchers.IO) { api.getUser(id) }
+        _user.value = user
+    }
+}
+```
+
+**Use both together.** `try-catch` for expected errors you can handle gracefully (no internet, server down, invalid input). `CoroutineExceptionHandler` as a backup for unexpected errors so your app doesn't crash.
+
+## The Coroutine Cheat Sheet
+
+| Question | Answer |
+|---|---|
+| Where does code run? | **Dispatchers** — Main, IO, Default |
+| Who cancels my coroutine? | **Scopes** — viewModelScope, lifecycleScope |
+| How do I return data? | **suspend** (one-shot), **Flow** (stream), **StateFlow** (state) |
+| How do I run tasks? | **withContext** (sequential), **async + await** (parallel) |
+| How do I handle errors? | **try-catch** (expected), **CoroutineExceptionHandler** (backup) |
+
+Print this. Stick it next to your monitor. Refer to it until it becomes muscle memory.
+
+## 7 Mistakes Every Android Developer Makes
+
+After reviewing hundreds of codebases and mentoring developers, these are the seven coroutine mistakes I see over and over again.
+
+### 1. Using `GlobalScope`
+
+```kotlin
+// WRONG — lives forever, leaks memory
+GlobalScope.launch { api.syncData() }
+
+// RIGHT — cancels when ViewModel clears
+viewModelScope.launch { api.syncData() }
+```
+
+`GlobalScope` never cancels. Your coroutine outlives your screen, holds references to dead Activities, and drains battery.
+
+### 2. Network Call Without IO Dispatcher
+
+```kotlin
+// WRONG — NetworkOnMainThreadException
+viewModelScope.launch {
+    val user = api.getUser("123") // runs on Main!
+}
+
+// RIGHT — switch to IO for network
+viewModelScope.launch {
+    val user = withContext(Dispatchers.IO) { api.getUser("123") }
+}
+```
+
+`viewModelScope.launch` defaults to `Dispatchers.Main`. Network on Main = crash.
+
+### 3. CPU Work on IO Dispatcher
+
+```kotlin
+// WRONG — sorting on IO starves network threads
+withContext(Dispatchers.IO) {
+    hugeList.sortedBy { it.timestamp } // CPU work on IO pool!
+}
+
+// RIGHT — CPU work on Default
+withContext(Dispatchers.Default) {
+    hugeList.sortedBy { it.timestamp }
+}
+```
+
+IO has up to 64 threads for waiting. Default has threads equal to CPU cores for computing. Put CPU work on IO and you starve your network calls of threads.
+
+### 4. Collecting Flow Without `repeatOnLifecycle`
+
+```kotlin
+// WRONG — keeps collecting even when app is in background, drains battery
+lifecycleScope.launch {
+    viewModel.userFlow.collect { updateUI(it) }
+}
+
+// RIGHT — only collects when lifecycle is at least STARTED
+lifecycleScope.launch {
+    repeatOnLifecycle(Lifecycle.State.STARTED) {
+        viewModel.userFlow.collect { updateUI(it) }
+    }
+}
+```
+
+Without `repeatOnLifecycle`, your Flow keeps emitting and processing data when the app is in the background. That's wasted CPU, wasted battery, and potentially wasted network calls.
+
+### 5. No Exception Handling
+
+```kotlin
+// WRONG — unhandled exception crashes the app
+viewModelScope.launch {
+    val user = api.getUser("123") // throws? App dies.
+}
+
+// RIGHT — handle the error
+viewModelScope.launch {
+    try {
+        val user = withContext(Dispatchers.IO) { api.getUser("123") }
+        _user.value = user
+    } catch (e: Exception) {
+        _error.value = "Failed to load user"
+    }
+}
+```
+
+Every coroutine that touches a network, database, or file needs error handling. No exceptions (pun intended).
+
+### 6. Sequential When You Should Be Parallel
+
+```kotlin
+// SLOW — 4 seconds total
+val user = withContext(Dispatchers.IO) { getUser() }       // 2s
+val notifs = withContext(Dispatchers.IO) { getNotifications() } // 2s
+
+// FAST — 2 seconds total
+val user = async(Dispatchers.IO) { getUser() }          // 2s, starts now
+val notifs = async(Dispatchers.IO) { getNotifications() }  // 2s, starts now
+showDashboard(user.await(), notifs.await())              // waits for both
+```
+
+If two operations don't depend on each other, run them in parallel with `async`. Your users will feel the difference.
+
+### 7. Using `Thread.sleep` in a Coroutine
+
+```kotlin
+// WRONG — blocks the thread, defeats the purpose of coroutines
+launch {
+    Thread.sleep(2000) // thread is held hostage
+    doSomething()
+}
+
+// RIGHT — suspends, thread is free to do other work
+launch {
+    delay(2000) // thread goes and helps other coroutines
+    doSomething()
+}
+```
+
+`Thread.sleep` blocks the entire thread. `delay` suspends the coroutine and frees the thread. This is the blocking vs suspending distinction in action.
+
+---
+
+## Wrapping Up
+
+Coroutines aren't magic. They're a well-designed tool that solves a very specific problem: running async work safely in a lifecycle-aware way on Android. The fundamentals we covered — Dispatchers, Scopes, suspend, error handling — are the foundation everything else builds on.
+
+If you remember nothing else from this post, remember these three things:
+
+1. **Dispatchers** decide where your code runs. Main for UI, IO for waiting, Default for computing.
+2. **Scopes** decide when your code dies. Use `viewModelScope` and `lifecycleScope`. Never `GlobalScope`.
+3. **Every coroutine needs error handling.** Unhandled exceptions crash your entire app.
+
+Get these right and you've already avoided 90% of coroutine bugs in production.
+
+---
+
+*Coming up in Part 2: **Jobs & Cancellation** — how coroutines actually cancel, what `SupervisorJob` does, structured concurrency, and why your cancellation code probably has a bug. Stay tuned.*

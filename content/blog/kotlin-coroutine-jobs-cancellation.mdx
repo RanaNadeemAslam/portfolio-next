@@ -1,0 +1,358 @@
+---
+title: "Coroutine Jobs, SupervisorJob & Cancellation in Kotlin"
+date: "2026-04-04"
+description: "Understand how to cancel, control, and manage every coroutine you launch. Jobs, SupervisorJob, Deferred, structured concurrency, and real-world cancellation patterns."
+tags: ["kotlin", "android", "coroutines"]
+featured: false
+---
+
+This is **Part 2** of a 3-part series on Kotlin Coroutines for Android developers. If you missed Part 1 covering Dispatchers, Scopes, and the basics, [start there first](/blog/kotlin-coroutines-guide).
+
+In Part 1, we learned how to launch coroutines. Now the real question: **how do you control them after they're running?** How do you cancel one? What happens when a child coroutine crashes? And why does `viewModelScope` quietly handle failures that would nuke a regular scope?
+
+The answer to all of this is **Jobs**.
+
+---
+
+## What is a Job?
+
+Every time you call `launch`, it returns a `Job`. Think of it as a **contract for a task you hired someone to do**. You can check on the task, wait for it to finish, or cancel it entirely.
+
+```kotlin
+val job = scope.launch {
+    delay(2000)
+    println("Task complete")
+}
+
+println(job.isActive)      // true — still running
+println(job.isCompleted)   // false — not done yet
+println(job.isCancelled)   // false — hasn't been cancelled
+
+job.cancel()  // cancel the coroutine
+job.join()    // wait until it's fully done (even after cancel)
+```
+
+A few things to notice. `cancel()` doesn't instantly destroy the coroutine -- it requests cancellation. And `join()` suspends until the Job reaches a terminal state, whether that's completion or cancellation. You'll often see them combined as `job.cancelAndJoin()`.
+
+The key insight: **without the Job reference, you lose control**. The coroutine is still running somewhere, and you have no handle to stop it.
+
+---
+
+## Search Debounce -- A Real Example
+
+This is where Jobs become practical immediately. Imagine a search screen where the user types quickly:
+
+- Types `a` -- fires API call
+- Types `an` -- fires another API call
+- Types `and` -- another one
+- Types `android` -- yet another
+
+Without storing the Job, that's **4 API calls**. Three of them are completely wasted. With a stored Job reference, you cancel the previous search before starting a new one:
+
+```kotlin
+class SearchViewModel : ViewModel() {
+
+    private var searchJob: Job? = null
+
+    fun onQueryChanged(query: String) {
+        searchJob?.cancel() // cancel previous search
+
+        searchJob = viewModelScope.launch {
+            delay(300) // debounce: wait 300ms
+            val results = repository.search(query)
+            _searchResults.value = results
+        }
+    }
+}
+```
+
+When the user types `a`, a coroutine launches and waits 300ms. But 100ms later they type `an` -- the first Job gets cancelled (it was still in `delay`), and a new coroutine starts. This repeats until the user stops typing. Only the **last query** actually hits the API.
+
+This pattern is everywhere in production Android code. Search screens, auto-complete fields, form validation -- anywhere user input triggers async work.
+
+---
+
+## Parent-Child Jobs (Structured Concurrency)
+
+When you launch a coroutine inside another coroutine, you create a **parent-child relationship**. These relationships form a tree, and this tree has strict rules.
+
+```kotlin
+val parentJob = scope.launch {
+    launch { // child 1
+        delay(1000)
+        println("Child 1 done")
+    }
+    launch { // child 2
+        delay(2000)
+        println("Child 2 done")
+    }
+    launch { // child 3
+        delay(3000)
+        println("Child 3 done")
+    }
+}
+
+parentJob.join() // waits for ALL three children
+println("Parent done")
+```
+
+Three rules govern this tree:
+
+1. **Parent waits for ALL children.** The parent Job won't complete until every child finishes. Even if the parent's own code is done, it stays active.
+2. **Cancel parent = cancel ALL children.** Call `parentJob.cancel()` and all three children get cancelled immediately.
+3. **Child fails = parent fails too.** If any child throws an exception, the parent cancels, which in turn cancels all other children.
+
+Rule 3 is the one that surprises people.
+
+---
+
+## One Child Fails, Everything Dies
+
+Let's see Rule 3 in action:
+
+```kotlin
+scope.launch {
+    launch { fetchUser() }          // child 1
+    launch { crash() }              // child 2 — throws exception
+    launch { fetchNotifications() } // child 3
+}
+
+suspend fun crash() {
+    delay(500)
+    throw RuntimeException("Something went wrong")
+}
+```
+
+When `crash()` throws after 500ms, here's what happens:
+
+1. Child 2 fails with an exception
+2. The parent receives the failure
+3. The parent cancels Child 1 (`fetchUser`) and Child 3 (`fetchNotifications`)
+4. The entire scope is now dead
+
+Sometimes this is exactly what you want. If you're fetching a user and then their settings, and the user fetch fails, there's no point fetching settings. The tasks are **dependent**.
+
+But what about a home screen that loads user info, a feed, and notifications **independently**? If the notification API is down, should the entire screen fail? Probably not. The user info and feed are perfectly fine.
+
+This is where `SupervisorJob` comes in.
+
+---
+
+## SupervisorJob
+
+`SupervisorJob` changes Rule 3: **a child's failure does NOT cancel the parent or siblings.**
+
+```kotlin
+val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
+scope.launch {
+    launch { fetchUser() }          // keeps running
+    launch { crash() }              // fails — but isolated
+    launch { fetchNotifications() } // keeps running
+}
+```
+
+Now when `crash()` throws, only that specific child dies. `fetchUser()` and `fetchNotifications()` continue as normal.
+
+Here's the thing most developers don't realize: **`viewModelScope` already uses `SupervisorJob` internally.** That's why one failed network call in your ViewModel doesn't kill every other coroutine in the scope. Google made this choice deliberately because ViewModel operations are typically independent.
+
+```kotlin
+// Inside ViewModelScope source code:
+val viewModelScope = CloseableCoroutineScope(
+    SupervisorJob() + Dispatchers.Main.immediate
+)
+```
+
+So if you're launching coroutines from `viewModelScope.launch`, you're already getting supervisor behavior at the top level.
+
+---
+
+## Job vs SupervisorJob -- When to Use Which
+
+This decision comes down to one question: **are the tasks dependent on each other?**
+
+**Use regular Job when tasks depend on each other:**
+```kotlin
+scope.launch { // Regular Job (default)
+    val user = async { fetchUser() }
+    val settings = async { fetchSettings(user.await().id) }
+    // If fetchUser fails, no point fetching settings
+}
+```
+
+**Use SupervisorJob when tasks are independent:**
+```kotlin
+val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+scope.launch {
+    launch { loadUserProfile() }     // independent
+    launch { loadFeed() }            // independent
+    launch { loadNotifications() }   // independent
+    // Each can fail without affecting others
+}
+```
+
+Quick reference:
+- `viewModelScope` = SupervisorJob by default
+- Custom scopes = regular Job unless you specify otherwise
+- When in doubt, ask yourself: "If task A fails, does task B become meaningless?"
+
+---
+
+## Job vs Deferred
+
+You've seen `launch` returns a `Job`. But `async` returns a `Deferred<T>` -- which is a Job that **carries a result**.
+
+```kotlin
+// launch → Job (fire and forget)
+val job: Job = scope.launch {
+    saveToDatabase(data)
+    // no return value
+}
+
+// async → Deferred (returns a value)
+val deferred: Deferred<User> = scope.async {
+    api.fetchUser(userId)
+    // returns User
+}
+
+val user: User = deferred.await() // suspends until result is ready
+```
+
+The critical distinction: `await()` **suspends**, it does not **block**. The calling coroutine pauses without hogging a thread, and resumes when the result is available. This is what makes `async/await` so efficient for parallel work:
+
+```kotlin
+val user = async { fetchUser() }
+val posts = async { fetchPosts() }
+
+// Both requests run in parallel
+// Total time = max(fetchUser, fetchPosts), not the sum
+updateUI(user.await(), posts.await())
+```
+
+---
+
+## Cancellation is Cooperative
+
+This is the part that trips up even experienced developers: **`job.cancel()` doesn't instantly kill a coroutine.** It sets a flag and politely asks the coroutine to stop. The coroutine has to **cooperate** by checking that flag.
+
+Suspend functions like `delay()`, `withContext()`, and `emit()` check for cancellation automatically. That's why our search debounce example works -- `delay(300)` detects the cancellation and throws a `CancellationException`.
+
+But what about CPU-bound loops?
+
+```kotlin
+// This coroutine NEVER stops — even after cancel()
+val job = scope.launch {
+    var i = 0
+    while (true) {
+        i++
+        // no suspension point, never checks cancellation
+        heavyComputation(i)
+    }
+}
+
+job.cancel() // sets the flag, but nobody checks it
+```
+
+The fix: use `ensureActive()` or check `isActive`:
+
+```kotlin
+// This coroutine stops properly
+val job = scope.launch {
+    var i = 0
+    while (isActive) { // checks cancellation each iteration
+        i++
+        heavyComputation(i)
+    }
+}
+
+// Or use ensureActive() which throws CancellationException
+val job2 = scope.launch {
+    var i = 0
+    while (true) {
+        ensureActive() // throws if cancelled
+        i++
+        heavyComputation(i)
+    }
+}
+```
+
+The difference between `isActive` and `ensureActive()`: `isActive` lets you exit gracefully (you control what happens), while `ensureActive()` throws immediately. Use whichever fits your cleanup needs.
+
+---
+
+## Real-World Cancellation Patterns
+
+### Cancel and Restart (Polling)
+
+A common pattern for periodic data refresh. Store the Job reference, cancel on restart, and use `isActive` in the loop:
+
+```kotlin
+class DashboardViewModel : ViewModel() {
+
+    private var pollingJob: Job? = null
+
+    fun startPolling() {
+        pollingJob?.cancel() // cancel previous polling
+
+        pollingJob = viewModelScope.launch {
+            while (isActive) {
+                val data = repository.fetchDashboard()
+                _dashboard.value = data
+                delay(30_000) // refresh every 30 seconds
+            }
+        }
+    }
+
+    fun stopPolling() {
+        pollingJob?.cancel()
+    }
+}
+```
+
+When the user navigates away, `stopPolling()` cancels the Job. When they come back, `startPolling()` cancels any leftover Job (defensive) and starts a fresh loop.
+
+### Timeout
+
+Sometimes you don't want to wait forever for a response. `withTimeoutOrNull` runs a block with a deadline and returns `null` if time runs out:
+
+```kotlin
+viewModelScope.launch {
+    val result = withTimeoutOrNull(5000) { // 5 second deadline
+        api.fetchLargeReport()
+    }
+
+    if (result != null) {
+        _report.value = result
+    } else {
+        _error.value = "Request timed out. Try again."
+    }
+}
+```
+
+There's also `withTimeout()` (without "OrNull") which throws `TimeoutCancellationException` instead. Use `withTimeoutOrNull` when you want to handle timeouts gracefully without try-catch.
+
+---
+
+## Cheat Sheet
+
+Keep this as a quick reference:
+
+| Concept | What to Remember |
+|---|---|
+| `launch` | Returns `Job` -- fire and forget |
+| `async` | Returns `Deferred<T>` -- use `.await()` for result |
+| `job.cancel()` | Requests cancellation (cooperative) |
+| `job.join()` | Suspends until job completes |
+| `isActive` / `ensureActive()` | Manual cancellation checks for CPU loops |
+| **Regular Job** | Child failure cancels parent + siblings |
+| **SupervisorJob** | Child failure is isolated |
+| `viewModelScope` | Uses SupervisorJob by default |
+| `withTimeoutOrNull` | Returns null on timeout instead of throwing |
+
+---
+
+## What's Next?
+
+In **Part 3**, we'll tackle **Kotlin Flow** -- the reactive stream API built on top of coroutines. We'll cover `flow`, `stateFlow`, `sharedFlow`, operators like `map`, `filter`, `combine`, and `flatMapLatest`, and how to use `flowOn` to control which thread your flow runs on. If Jobs are about controlling individual tasks, Flow is about controlling **streams of data over time**.
+
+Stay tuned.

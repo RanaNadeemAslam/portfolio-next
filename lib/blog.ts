@@ -8,6 +8,7 @@ export type BlogMetadata = {
   description: string
   cover?: string
   tags: string[]
+  featured?: boolean
 }
 
 export type BlogPost = {
@@ -36,6 +37,7 @@ function parseMdxFile(slug: string, filePath: string): BlogPost {
     description: data.description ?? '',
     cover: data.cover,
     tags: Array.isArray(data.tags) ? data.tags : [],
+    featured: data.featured === true,
   }
 
   return {
@@ -68,6 +70,13 @@ export function getBlogPosts(): BlogPost[] {
       new Date(b.metadata.date).getTime() -
       new Date(a.metadata.date).getTime()
   )
+}
+
+export function getAllTags(): string[] {
+  const posts = getBlogPosts()
+  const tags = new Set<string>()
+  posts.forEach((post) => post.metadata.tags.forEach((tag) => tags.add(tag)))
+  return Array.from(tags).sort()
 }
 
 export function getPostBySlug(slug: string): BlogPost | null {
