@@ -175,7 +175,7 @@ const jsonLdFaq = {
       name: "Who is Nadeem Aslam?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: 'Nadeem Aslam is a Senior Mobile Developer with 6+ years of experience building Android and iOS apps. He has 5M+ downloads across Play Store and App Store, 25+ published apps, and a 5.0 rating with 69 reviews on Fiverr as a Level 2 Seller.',
+        text: "Nadeem Aslam is a Senior Mobile Developer based in Islamabad, Pakistan with over 6 years of professional experience building Android and iOS applications. He has accumulated more than 5 million downloads across the Google Play Store and Apple App Store, with 25+ published production apps and 30,000+ user ratings. Nadeem currently leads a team of 5 engineers at Invotyx where he builds VPN, networking, and streaming apps in Kotlin and Swift. He is also an active freelancer on Fiverr with a perfect 5.0-star rating across 69 reviews as a Level 2 Seller, serving clients in the United States, United Kingdom, Canada, Netherlands, Saudi Arabia, and other countries. He holds a BS in Computer Science from the University of Sargodha.",
       },
     },
     {
@@ -183,7 +183,7 @@ const jsonLdFaq = {
       name: "What mobile development services does Nadeem Aslam offer?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Nadeem offers native Android development (Kotlin, Java), native iOS development (Swift, SwiftUI), and cross-platform development (Flutter, React Native). He specializes in VPN apps, streaming/IPTV apps, AI chatbot apps, and network optimization tools.",
+        text: "Nadeem offers native Android development using Kotlin and Java with Jetpack Compose and MVVM architecture, native iOS development using Swift and SwiftUI, and cross-platform mobile development using Flutter and React Native. He specializes in several app categories including VPN and network optimization apps, streaming and IPTV players built with ExoPlayer, AI chatbot assistants with multi-model support, healthcare communication platforms with secure messaging, and business productivity tools. His services cover the full app lifecycle from initial architecture and UI/UX implementation through Play Store and App Store deployment, CI/CD pipeline setup, and post-launch maintenance with Firebase Crashlytics monitoring.",
       },
     },
     {
@@ -191,7 +191,7 @@ const jsonLdFaq = {
       name: "How can I hire Nadeem Aslam for mobile app development?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "You can hire Nadeem through Fiverr (fiverr.com/nadeem585), via email at link2nadeemaslam@gmail.com, or through WhatsApp. He works with clients worldwide and has delivered projects for clients in the US, UK, Canada, Netherlands, Saudi Arabia, and more.",
+        text: "You can hire Nadeem through Fiverr at fiverr.com/nadeem585 where he has 69 five-star reviews as a Level 2 Seller, via email at link2nadeemaslam@gmail.com, or through WhatsApp at +92 301 531 1113 for a faster initial conversation. He works with clients worldwide and has delivered projects for businesses and individuals in the US, UK, Canada, Netherlands, Saudi Arabia, Luxembourg, and Dominican Republic. Engagements typically start with a free consultation to understand requirements followed by a detailed proposal with timeline and cost. He is available for both short-term projects like bug fixes and feature additions as well as long-term contracts for full app development.",
       },
     },
     {
@@ -199,7 +199,7 @@ const jsonLdFaq = {
       name: "What are Nadeem Aslam's most popular apps?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "His most popular apps include Virtual 5G (8.9M downloads, 4.4 stars), VPN Express (1.7M downloads, 4.5 stars), NetOptimizer for iOS (4.7 stars, 19 languages), Smart IPTV Xtream Player (91K downloads), and Orion AI Chatbot Assistant (4.6 stars).",
+        text: "Nadeem's most popular apps include Virtual 5G, a secure proxy and network optimization app with 8.9 million downloads, a 4.4-star rating, and 23,000+ reviews on Google Play Store. VPN Express is his second largest app with 1.7 million downloads and a 4.5-star rating on Android, plus a companion iOS version. NetOptimizer for iOS supports 19 languages and has a 4.5-star App Store rating. Smart IPTV Xtream Player has over 50,000 downloads as a streaming and IPTV client built with ExoPlayer. Orion AI is an iOS chatbot assistant with a 4.5-star rating that supports multiple AI models including Gemini and Claude for conversational AI and image generation.",
       },
     },
     {
@@ -207,7 +207,7 @@ const jsonLdFaq = {
       name: "What technologies does Nadeem Aslam use?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Nadeem works with Kotlin, Java, Swift, SwiftUI, Flutter, Jetpack Compose, Kotlin Multiplatform (KMM), React Native, Firebase, MVVM architecture, Clean Architecture, REST APIs, Room Database, Core Data, ExoPlayer, and Unity Ads integration.",
+        text: "Nadeem's primary technology stack includes Kotlin and Java for Android development with Jetpack Compose for modern declarative UIs, Swift and SwiftUI for iOS development, and Flutter and React Native for cross-platform projects. He uses Kotlin Multiplatform (KMM) for sharing business logic across platforms. His architecture approach follows MVVM and Clean Architecture patterns with repository layers, use cases, and ViewModels. For backend integration he works with Firebase (Firestore, Authentication, Crashlytics, Cloud Messaging), REST APIs, Room Database on Android, and Core Data on iOS. Additional tools include ExoPlayer for media streaming, Unity Ads for monetization, and CI/CD pipelines for automated testing and deployment.",
       },
     },
   ],
@@ -289,7 +289,6 @@ export default function Home() {
                 </div>
                 </StaggerIn>
               </div>
-              <StaggerIn delay={300}>
               <div className="relative flex-shrink-0">
                 <Image
                   src="/assets/portrait.png"
@@ -302,7 +301,6 @@ export default function Home() {
                 />
                 <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent pointer-events-none" />
               </div>
-              </StaggerIn>
             </div>
           </div>
         </header>

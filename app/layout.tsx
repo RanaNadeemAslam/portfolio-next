@@ -40,7 +40,14 @@ export const metadata: Metadata = {
       "Senior Mobile Developer with 6+ years of experience. 5M+ downloads across Play Store and App Store.",
     url: "https://nadeemaslam.dev",
     siteName: "Nadeem Aslam Portfolio",
-    images: ["/assets/portrait.png"],
+    images: [
+      {
+        url: "/assets/portrait.png",
+        width: 721,
+        height: 709,
+        alt: "Nadeem Aslam — Senior Mobile Developer",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
@@ -49,6 +56,17 @@ export const metadata: Metadata = {
       "Senior Mobile Developer with 6+ years. 5M+ downloads, 25+ apps on Play Store & App Store.",
     images: ["/assets/portrait.png"],
   },
+};
+
+const jsonLdWebSite = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": "https://nadeemaslam.dev/#website",
+  name: "Nadeem Aslam",
+  url: "https://nadeemaslam.dev",
+  description:
+    "Senior Mobile Developer specializing in Android and iOS apps. 5M+ downloads, 25+ published apps.",
+  author: { "@id": "https://nadeemaslam.dev/#person" },
 };
 
 export default function RootLayout({
@@ -66,6 +84,11 @@ export default function RootLayout({
         <meta
           name="indexnow-key"
           content="d2bb87b3ce284938b6e6c5b8b7dbc246"
+        />
+        <link rel="apple-touch-icon" href="/favicon.ico" sizes="256x256" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdWebSite) }}
         />
         <script
           dangerouslySetInnerHTML={{

@@ -32,6 +32,25 @@ export const metadata: Metadata = {
 
 /* ── Structured Data ────────────────────────────────────────────────────── */
 
+const jsonLdBreadcrumb = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: "https://nadeemaslam.dev",
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "Work",
+      item: "https://nadeemaslam.dev/work",
+    },
+  ],
+};
+
 const jsonLdItemList = {
   "@context": "https://schema.org",
   "@type": "ItemList",
@@ -98,6 +117,10 @@ export default function WorkPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdItemList) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBreadcrumb) }}
       />
 
       <Nav />

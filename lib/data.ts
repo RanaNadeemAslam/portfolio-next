@@ -405,27 +405,27 @@ export const faqItems: FaqItem[] = [
   {
     question: 'What platforms do you develop for?',
     answer:
-      'I build native Android apps using Kotlin and Java, native iOS apps using Swift and SwiftUI, and cross-platform apps using Flutter and React Native. I also work with Kotlin Multiplatform (KMM) for shared business logic across platforms.',
+      'I build native Android apps using Kotlin and Java with Jetpack Compose and MVVM architecture, native iOS apps using Swift and SwiftUI with Core Data and Combine, and cross-platform apps using Flutter and React Native for simultaneous Android and iOS deployment. I also work with Kotlin Multiplatform (KMM) for sharing business logic across platforms while keeping native UIs. My Android development typically follows Clean Architecture with repositories, use cases, and ViewModels, while my iOS projects use SwiftUI with the Observation framework. I choose the platform and framework based on the project\'s requirements — native for performance-critical apps like VPNs and streaming players, cross-platform for MVPs and content-driven apps where faster time-to-market matters most.',
   },
   {
     question: 'What types of apps have you built?',
     answer:
-      'VPN and networking apps (8.9M+ downloads), streaming and IPTV players, AI chatbot assistants, healthcare apps, remote control apps, news aggregators, and business tools. My apps span Play Store and App Store with 5M+ total downloads.',
+      'I have built VPN and networking apps with a combined 8.9M+ downloads including Virtual 5G and VPN Express, streaming and IPTV players like Smart IPTV Xtream Player (50K+ downloads) with ExoPlayer integration, AI chatbot assistants like Orion AI (4.5 stars on App Store) with multi-model support for Gemini and Claude, healthcare communication platforms like Doctoc with secure messaging and scheduling, smart TV remote control apps with auto device discovery, news aggregator apps pulling from sources like Forbes, CNN, and BBC, and business tools like Invoice Maker with 50+ templates and PDF generation. In total I have shipped 25+ production apps across both Google Play Store and Apple App Store with 5M+ combined downloads and 30K+ user ratings.',
   },
   {
     question: 'Do you work with international clients?',
     answer:
-      'Yes. I have 69 five-star reviews on Fiverr from clients in the US, UK, Canada, Netherlands, Saudi Arabia, Luxembourg, and Dominican Republic. I communicate in English and maintain a 1-hour average response time.',
+      'Yes, I work with clients worldwide and have completed projects for businesses and individuals in the United States, United Kingdom, Canada, Netherlands, Saudi Arabia, Luxembourg, and Dominican Republic. I am a Level 2 Seller on Fiverr with 69 five-star reviews and a perfect 5.0 rating. I communicate in English, maintain a 1-hour average response time during business hours, and use tools like Slack, Jira, and GitHub for project collaboration. My timezone is Pakistan Standard Time (UTC+5) and I typically overlap with both European and US East Coast business hours for real-time communication.',
   },
   {
     question: 'Can you handle the full app lifecycle?',
     answer:
-      "Absolutely. I handle everything from ideation and architecture through development, testing, Play Store and App Store deployment, and post-launch maintenance. I've published 25+ apps across both stores.",
+      'Absolutely. I handle every stage of mobile app development from initial ideation and architecture planning through UI/UX implementation, backend integration, testing, Play Store and App Store deployment, and post-launch maintenance and updates. I have published 25+ apps across both stores and understand the submission guidelines, review processes, and optimization strategies for each. For Android I manage signing, ProGuard configuration, and staged rollouts. For iOS I handle certificates, provisioning profiles, and App Store Connect submission. I also set up CI/CD pipelines, crash reporting with Firebase Crashlytics, and analytics tracking to monitor app performance after launch.',
   },
   {
     question: 'How can I hire you?',
     answer:
-      'You can reach me through WhatsApp, email at link2nadeemaslam@gmail.com, or hire me directly on Fiverr at fiverr.com/nadeem585. I\'m available for both short-term projects and long-term contracts.',
+      'You can hire me through several channels depending on your preference. For freelance projects, I am available on Fiverr at fiverr.com/nadeem585 where I have 69 five-star reviews as a Level 2 Seller. You can also contact me directly via email at link2nadeemaslam@gmail.com or through WhatsApp at +92 301 531 1113 for a faster initial conversation. I am available for both short-term projects like bug fixes and feature additions as well as long-term contracts for full app development. My typical engagement starts with a free consultation to understand your requirements, followed by a detailed proposal with timeline and cost breakdown.',
   },
 ];
 

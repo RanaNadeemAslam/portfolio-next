@@ -7,6 +7,8 @@ cover: "/blog/coroutines-fundamentals-cover.png"
 featured: true
 ---
 
+Kotlin Coroutines are a concurrency framework built into the Kotlin language that allows asynchronous code to be written sequentially without blocking threads. They are Google's official recommendation for handling asynchronous work on Android, replacing older approaches like AsyncTask and RxJava with a simpler, lifecycle-aware API.
+
 *Part 1 of 3 in the Kotlin Coroutines Deep Dive series. This post covers the fundamentals — why coroutines exist, how they work under the hood, and the mistakes that ship buggy apps. Parts 2 and 3 will cover Jobs & Cancellation and Flows & Channels.*
 
 ---
@@ -23,7 +25,7 @@ Now think about what happens when you do this on the main thread:
 - **Database query** — 50ms to 500ms. Freeze.
 - **JSON parsing** — 20ms to 200ms. Stutter.
 
-And if the main thread is blocked for more than **5 seconds**? Android kills your app with an ANR (Application Not Responding) dialog. Your user uninstalls. Your rating drops. Game over.
+And if the main thread is blocked for more than **5 seconds**? Android kills your app with an [ANR (Application Not Responding)](https://developer.android.com/topic/performance/vitals/anr) dialog. Your user uninstalls. Your rating drops. Game over.
 
 The solution is simple in theory: **move heavy work OFF the main thread**. But doing that safely, without memory leaks, without crashes on rotation, without callback spaghetti — that's where it gets tricky.
 
@@ -49,7 +51,7 @@ Thread {
 
 **RxJava (2014)** — Powerful, composable, reactive. The community loved it. But even a simple network call needed ~15 lines of boilerplate. `subscribeOn`, `observeOn`, `disposables`, `CompositeDisposable`... the learning curve was a wall.
 
-**Coroutines (2019)** — Kotlin's answer. Lightweight, lifecycle-aware, sequential-looking async code. Google made it the **official recommendation** for async work on Android. And it reads like normal code.
+**Coroutines (2019)** — Kotlin's answer. Lightweight, lifecycle-aware, sequential-looking async code. Google made it the [official recommendation](https://developer.android.com/kotlin/coroutines) for async work on Android. And it reads like normal code.
 
 ```kotlin
 // 2019: Coroutines — clean, safe, lifecycle-aware
@@ -107,7 +109,7 @@ A coroutine is not a lightweight thread. It's a **suspension point** — a place
 
 ## What `suspend` Actually Means
 
-When you put `suspend` in front of a function, you're telling Kotlin: "this function might take time. Don't block the thread — suspend it instead."
+When you put [`suspend`](https://kotlinlang.org/docs/composing-suspending-functions.html) in front of a function, you're telling Kotlin: "this function might take time. Don't block the thread — suspend it instead."
 
 ```kotlin
 suspend fun getUser(id: String): User {
@@ -138,7 +140,7 @@ Think of `suspend` as a **contract**. It promises callers: "I won't block your t
 
 ## Dispatchers — Where Your Code Runs
 
-A Dispatcher determines which thread or thread pool your coroutine runs on. Pick the wrong one and you'll either crash or starve your app of resources.
+A [Dispatcher](https://kotlinlang.org/docs/coroutine-context-and-dispatchers.html) determines which thread or thread pool your coroutine runs on. Pick the wrong one and you'll either crash or starve your app of resources.
 
 There are three dispatchers you need to know:
 
@@ -212,7 +214,7 @@ An unscoped coroutine is a memory leak waiting to happen. Scopes tie coroutine l
 
 ### `viewModelScope`
 
-Cancels all coroutines when the ViewModel is cleared. This is your go-to for most data loading operations.
+Cancels all coroutines when the ViewModel is cleared. This is your go-to for most data loading operations. See the [Android coroutines guide](https://developer.android.com/topic/libraries/architecture/coroutines) for detailed lifecycle integration.
 
 ```kotlin
 class UserViewModel : ViewModel() {

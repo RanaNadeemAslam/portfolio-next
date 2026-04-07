@@ -30,6 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: post.metadata.title,
     description: post.metadata.description,
+    keywords: post.metadata.tags,
     alternates: {
       canonical: `https://nadeemaslam.dev/blog/${slug}`,
     },
@@ -69,21 +70,26 @@ export default async function BlogPostPage({ params }: Props) {
 
   const jsonLdArticle = {
     "@context": "https://schema.org",
-    "@type": "Article",
+    "@type": "BlogPosting",
     headline: post.metadata.title,
     description: post.metadata.description,
     datePublished: post.metadata.date,
     dateModified: post.metadata.date,
     author: {
       "@type": "Person",
+      "@id": "https://nadeemaslam.dev/#person",
       name: "Nadeem Aslam",
       url: "https://nadeemaslam.dev",
-      jobTitle: "Senior Android Developer",
+      jobTitle: "Senior Mobile Developer",
     },
     publisher: {
-      "@type": "Person",
+      "@type": "Organization",
       name: "Nadeem Aslam",
       url: "https://nadeemaslam.dev",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://nadeemaslam.dev/assets/portrait.png",
+      },
     },
     mainEntityOfPage: {
       "@type": "WebPage",
@@ -95,11 +101,40 @@ export default async function BlogPostPage({ params }: Props) {
     keywords: post.metadata.tags.join(", "),
   };
 
+  const jsonLdBreadcrumb = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://nadeemaslam.dev",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Blog",
+        item: "https://nadeemaslam.dev/blog",
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: post.metadata.title,
+        item: `https://nadeemaslam.dev/blog/${slug}`,
+      },
+    ],
+  };
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdArticle) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBreadcrumb) }}
       />
 
       <Nav />

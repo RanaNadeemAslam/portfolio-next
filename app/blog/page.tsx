@@ -32,23 +32,62 @@ export const metadata: Metadata = {
   },
 };
 
-const jsonLdBlog = {
+const jsonLdBlog = (() => {
+  const posts = getBlogPosts();
+  return {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    name: "Nadeem Aslam — Android Development Blog",
+    description:
+      "Articles on Android development, Kotlin, Jetpack Compose, Swift, and mobile app architecture.",
+    url: "https://nadeemaslam.dev/blog",
+    author: {
+      "@type": "Person",
+      "@id": "https://nadeemaslam.dev/#person",
+      name: "Nadeem Aslam",
+      url: "https://nadeemaslam.dev",
+      jobTitle: "Senior Mobile Developer",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Nadeem Aslam",
+      url: "https://nadeemaslam.dev",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://nadeemaslam.dev/assets/portrait.png",
+      },
+    },
+    blogPost: posts.map((post) => ({
+      "@type": "BlogPosting",
+      headline: post.metadata.title,
+      url: `https://nadeemaslam.dev/blog/${post.slug}`,
+      datePublished: post.metadata.date,
+      author: {
+        "@type": "Person",
+        "@id": "https://nadeemaslam.dev/#person",
+        name: "Nadeem Aslam",
+      },
+    })),
+  };
+})();
+
+const jsonLdBreadcrumb = {
   "@context": "https://schema.org",
-  "@type": "Blog",
-  name: "Nadeem Aslam — Android Development Blog",
-  description:
-    "Articles on Android development, Kotlin, Jetpack Compose, Swift, and mobile app architecture.",
-  url: "https://nadeemaslam.dev/blog",
-  author: {
-    "@type": "Person",
-    name: "Nadeem Aslam",
-    url: "https://nadeemaslam.dev",
-    jobTitle: "Senior Android Developer",
-  },
-  publisher: {
-    "@type": "Person",
-    name: "Nadeem Aslam",
-  },
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: "https://nadeemaslam.dev",
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "Blog",
+      item: "https://nadeemaslam.dev/blog",
+    },
+  ],
 };
 
 export default function BlogPage() {
@@ -60,6 +99,10 @@ export default function BlogPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBlog) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBreadcrumb) }}
       />
 
       <Nav />
