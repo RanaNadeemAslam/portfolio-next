@@ -1,0 +1,38 @@
+# Nadeem Aslam — Senior Mobile Developer
+
+> Portfolio and blog of Nadeem Aslam, a Senior Mobile Developer with 6+ years
+> of experience building Android and iOS applications. His apps have accumulated
+> 5M+ downloads across the Google Play Store and Apple App Store.
+
+## Key Pages
+
+- [Homepage](https://nadeemaslam.dev): Overview, highlights, featured projects, testimonials, FAQ, and contact form.
+- [Portfolio](https://nadeemaslam.dev/work): Full list of 10 shipped mobile apps with case studies, screenshots, and store links.
+- [Blog](https://nadeemaslam.dev/blog): In-depth technical articles on Android development, Kotlin, and mobile architecture.
+
+## Technical Articles
+
+- [Kotlin Coroutines: Dispatchers, Scopes & Fundamentals](https://nadeemaslam.dev/blog/kotlin-coroutines-guide)
+- [Coroutine Jobs, SupervisorJob & Cancellation in Kotlin](https://nadeemaslam.dev/blog/kotlin-coroutine-jobs-cancellation)
+- [Kotlin Flow Operators: The Complete Guide](https://nadeemaslam.dev/blog/kotlin-flow-operators-guide)
+
+## Notable Apps
+
+- Virtual 5G: 8.9M downloads, 4.4 stars, 23K+ ratings (Android)
+- VPN Express: 1.7M downloads, 4.5 stars (Android & iOS)
+- Smart IPTV Xtream Player: 50K+ downloads (Android)
+- Orion AI Chatbot Assistant: 4.5 stars (iOS)
+- NetOptimizer: 4.5 stars, 19 languages (iOS)
+
+## Services
+
+Native Android development (Kotlin, Java), native iOS development (Swift, SwiftUI),
+cross-platform development (Flutter, React Native), VPN and networking apps,
+AI and chatbot apps, streaming and IPTV apps.
+
+## Contact
+
+- Email: link2nadeemaslam@gmail.com
+- Fiverr: https://www.fiverr.com/nadeem585 (Level 2 Seller, 5.0 stars, 69 reviews)
+- LinkedIn: https://www.linkedin.com/in/nadeem-aslam-android/
+- GitHub: https://github.com/RanaNadeemAslam

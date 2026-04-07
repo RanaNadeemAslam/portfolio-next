@@ -20,6 +20,9 @@ export const metadata: Metadata = {
   },
   description:
     "Nadeem Aslam — Senior Mobile Developer with 6+ years building Android and iOS apps. 5M+ downloads, 25+ published apps. Expert in Kotlin, Swift, Flutter, Jetpack Compose.",
+  alternates: {
+    canonical: "https://nadeemaslam.dev",
+  },
   keywords: [
     "Nadeem Aslam",
     "Android developer",
@@ -60,6 +63,10 @@ export default function RootLayout({
       className={`${archivo.variable} ${spaceGrotesk.variable} h-full antialiased`}
     >
       <head>
+        <meta
+          name="indexnow-key"
+          content="d2bb87b3ce284938b6e6c5b8b7dbc246"
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){var t=localStorage.getItem('theme');if(t!=='light'){document.documentElement.classList.add('dark')}})();`,

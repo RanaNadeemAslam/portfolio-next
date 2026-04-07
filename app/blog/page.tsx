@@ -28,6 +28,7 @@ export const metadata: Metadata = {
     description:
       "In-depth articles on Android development, Kotlin, Jetpack Compose, and mobile architecture by Nadeem Aslam.",
     url: "https://nadeemaslam.dev/blog",
+    images: ["/assets/portrait.png"],
   },
 };
 

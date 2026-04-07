@@ -39,6 +39,7 @@ const platformColor: Record<string, string> = {
 const jsonLdPerson = {
   "@context": "https://schema.org",
   "@type": "Person",
+  "@id": "https://nadeemaslam.dev/#person",
   name: "Nadeem Aslam",
   jobTitle: "Senior Mobile Developer",
   description:
@@ -56,8 +57,6 @@ const jsonLdPerson = {
     "https://www.linkedin.com/in/nadeem-aslam-android/",
     "https://github.com/RanaNadeemAslam",
     "https://www.fiverr.com/nadeem585",
-    "https://play.google.com/store/apps/developer?id=Adara+Inc&hl=en",
-    "https://apps.apple.com/us/developer/adara-networks/id1743034595",
   ],
   knowsAbout: [
     "Android Development",
@@ -96,21 +95,38 @@ const jsonLdPerson = {
 const jsonLdService = {
   "@context": "https://schema.org",
   "@type": "ProfessionalService",
+  "@id": "https://nadeemaslam.dev/#service",
   name: "Nadeem Aslam - Mobile App Development",
   url: "https://nadeemaslam.dev",
   description:
     "Custom Android and iOS app development. Native apps in Kotlin and Swift, cross-platform apps in Flutter and React Native. From MVP to production with Play Store and App Store deployment.",
   areaServed: "Worldwide",
   priceRange: "$$",
+  provider: { "@id": "https://nadeemaslam.dev/#person" },
   aggregateRating: {
     "@type": "AggregateRating",
     ratingValue: "5.0",
     reviewCount: "69",
     bestRating: "5",
+    worstRating: "1",
   },
+  review: testimonials.map((t) => ({
+    "@type": "Review",
+    reviewRating: {
+      "@type": "Rating",
+      ratingValue: "5",
+      bestRating: "5",
+    },
+    author: {
+      "@type": "Person",
+      name: t.author,
+    },
+    reviewBody: t.text,
+  })),
   makesOffer: [
     {
       "@type": "Offer",
+      url: "https://nadeemaslam.dev/#contact",
       itemOffered: {
         "@type": "Service",
         name: "Android App Development (Kotlin, Java)",
@@ -118,6 +134,7 @@ const jsonLdService = {
     },
     {
       "@type": "Offer",
+      url: "https://nadeemaslam.dev/#contact",
       itemOffered: {
         "@type": "Service",
         name: "iOS App Development (Swift, SwiftUI)",
@@ -125,6 +142,7 @@ const jsonLdService = {
     },
     {
       "@type": "Offer",
+      url: "https://nadeemaslam.dev/#contact",
       itemOffered: {
         "@type": "Service",
         name: "Cross-Platform Development (Flutter, React Native)",
@@ -132,14 +150,17 @@ const jsonLdService = {
     },
     {
       "@type": "Offer",
+      url: "https://nadeemaslam.dev/#contact",
       itemOffered: { "@type": "Service", name: "VPN & Networking Apps" },
     },
     {
       "@type": "Offer",
+      url: "https://nadeemaslam.dev/#contact",
       itemOffered: { "@type": "Service", name: "AI & Chatbot Apps" },
     },
     {
       "@type": "Offer",
+      url: "https://nadeemaslam.dev/#contact",
       itemOffered: { "@type": "Service", name: "Streaming & IPTV Apps" },
     },
   ],
@@ -276,6 +297,7 @@ export default function Home() {
                   width={721}
                   height={709}
                   priority
+                  sizes="(max-width: 768px) 320px, 420px"
                   className="w-[320px] md:w-[420px] grayscale hover:grayscale-0 transition-all duration-500 rounded-2xl"
                 />
                 <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent pointer-events-none" />

@@ -30,6 +30,42 @@ export const metadata: Metadata = {
   },
 };
 
+/* ── Structured Data ────────────────────────────────────────────────────── */
+
+const jsonLdItemList = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  name: "Mobile Apps Portfolio — Nadeem Aslam",
+  description:
+    "Android and iOS apps developed by Nadeem Aslam with 5M+ total downloads.",
+  url: "https://nadeemaslam.dev/work",
+  numberOfItems: projects.length,
+  itemListElement: projects.map((p, i) => ({
+    "@type": "ListItem",
+    position: i + 1,
+    item: {
+      "@type": "SoftwareApplication",
+      name: p.title,
+      url: p.storeUrl,
+      description: p.description,
+      operatingSystem:
+        p.platform === "android"
+          ? "Android"
+          : p.platform === "ios"
+            ? "iOS"
+            : "Android, iOS",
+      applicationCategory: "UtilitiesApplication",
+      ...(p.rating && {
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: p.rating.match(/[\d.]+/)?.[0],
+          bestRating: "5",
+        },
+      }),
+    },
+  })),
+};
+
 /* ── Helpers ─────────────────────────────────────────────────────────────── */
 
 const platformLabel: Record<Platform, string> = {
@@ -59,6 +95,11 @@ function isLandscape(project: Project): boolean {
 export default function WorkPage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdItemList) }}
+      />
+
       <Nav />
 
       <main id="main" className="flex-1">
