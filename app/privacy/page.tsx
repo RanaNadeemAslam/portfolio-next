@@ -113,10 +113,10 @@ export default function PrivacyPage() {
                 like it deleted, or if you have any questions about this policy,
                 please contact:{" "}
                 <a
-                  href="mailto:link2nadeemaslam@gmail.com"
+                  href="mailto:nadeemaslam.dev@gmail.com"
                   className="text-accent underline"
                 >
-                  link2nadeemaslam@gmail.com
+                  nadeemaslam.dev@gmail.com
                 </a>
               </p>
             </section>

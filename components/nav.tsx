@@ -70,7 +70,7 @@ export default function Nav() {
           Blog
         </Link>
         <a
-          href="https://www.linkedin.com/in/nadeem-aslam-android/"
+          href="https://www.linkedin.com/in/nadeem-aslam-dev/"
           target="_blank"
           rel="noopener"
           onClick={closeNav}
@@ -121,7 +121,7 @@ export default function Nav() {
               Blog
             </Link>
             <a
-              href="https://www.linkedin.com/in/nadeem-aslam-android/"
+              href="https://www.linkedin.com/in/nadeem-aslam-dev/"
               target="_blank"
               rel="noopener"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"

@@ -191,21 +191,20 @@ function WorkCard({ project }: { project: Project }) {
   const screenshotHeight = landscape ? 220 : 360;
 
   return (
-    <a
-      href={project.storeUrl}
-      target="_blank"
-      rel="noopener"
-      className="block py-[60px] border-b border-border transition-colors duration-300 max-md:py-10 max-sm:py-8"
-    >
+    <article className="py-[60px] border-b border-border transition-colors duration-300 max-md:py-10 max-sm:py-8">
       {/* Text content */}
       <div className="mb-10 max-sm:mb-6">
         {/* Meta: platform tag + stat badge */}
         <div className="flex items-center gap-3 mb-4 flex-wrap">
-          <span
-            className={`text-[0.72rem] font-bold uppercase tracking-[2px] px-3.5 py-[5px] rounded-full ${platformColors[project.platform]}`}
+          <a
+            href={project.storeUrl}
+            target="_blank"
+            rel="noopener"
+            aria-label={`${platformLabel[project.platform]} store page for ${project.title}`}
+            className={`text-[0.72rem] font-bold uppercase tracking-[2px] px-3.5 py-[5px] rounded-full transition-opacity hover:opacity-75 ${platformColors[project.platform]}`}
           >
             {platformLabel[project.platform]}
-          </span>
+          </a>
           {project.stat && (
             <span className="text-[0.82rem] font-bold text-foreground">
               {project.stat}
@@ -236,9 +235,14 @@ function WorkCard({ project }: { project: Project }) {
         </div>
 
         {/* Store link */}
-        <span className="text-[0.9rem] font-bold text-foreground relative inline-block after:absolute after:bottom-[-2px] after:left-0 after:w-full after:h-[1.5px] after:bg-foreground">
+        <a
+          href={project.storeUrl}
+          target="_blank"
+          rel="noopener"
+          className="text-[0.9rem] font-bold text-foreground relative inline-block after:absolute after:bottom-[-2px] after:left-0 after:w-full after:h-[1.5px] after:bg-foreground hover:opacity-70 transition-opacity"
+        >
           {storeLabel(project.storeUrl)} &#x2197;
-        </span>
+        </a>
       </div>
 
       {/* Screenshots */}
@@ -328,6 +332,6 @@ function WorkCard({ project }: { project: Project }) {
           </div>
         </div>
       )}
-    </a>
+    </article>
   );
 }

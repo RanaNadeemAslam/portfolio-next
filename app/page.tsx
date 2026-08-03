@@ -46,7 +46,7 @@ const jsonLdPerson = {
     "Senior Mobile Developer specializing in Android and iOS app development with 6+ years of experience, 5M+ downloads, and 25+ published apps on Play Store and App Store.",
   url: "https://nadeemaslam.dev",
   image: "https://nadeemaslam.dev/assets/portrait.png",
-  email: "link2nadeemaslam@gmail.com",
+  email: "nadeemaslam.dev@gmail.com",
   telephone: "+923015311113",
   address: {
     "@type": "PostalAddress",
@@ -54,7 +54,7 @@ const jsonLdPerson = {
     addressLocality: "Islamabad",
   },
   sameAs: [
-    "https://www.linkedin.com/in/nadeem-aslam-android/",
+    "https://www.linkedin.com/in/nadeem-aslam-dev/",
     "https://github.com/RanaNadeemAslam",
     "https://www.fiverr.com/nadeem585",
   ],
@@ -191,7 +191,7 @@ const jsonLdFaq = {
       name: "How can I hire Nadeem Aslam for mobile app development?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "You can hire Nadeem through Fiverr at fiverr.com/nadeem585 where he has 69 five-star reviews as a Level 2 Seller, via email at link2nadeemaslam@gmail.com, or through WhatsApp at +92 301 531 1113 for a faster initial conversation. He works with clients worldwide and has delivered projects for businesses and individuals in the US, UK, Canada, Netherlands, Saudi Arabia, Luxembourg, and Dominican Republic. Engagements typically start with a free consultation to understand requirements followed by a detailed proposal with timeline and cost. He is available for both short-term projects like bug fixes and feature additions as well as long-term contracts for full app development.",
+        text: "You can hire Nadeem through Fiverr at fiverr.com/nadeem585 where he has 69 five-star reviews as a Level 2 Seller, via email at nadeemaslam.dev@gmail.com, or through WhatsApp at +92 301 531 1113 for a faster initial conversation. He works with clients worldwide and has delivered projects for businesses and individuals in the US, UK, Canada, Netherlands, Saudi Arabia, Luxembourg, and Dominican Republic. Engagements typically start with a free consultation to understand requirements followed by a detailed proposal with timeline and cost. He is available for both short-term projects like bug fixes and feature additions as well as long-term contracts for full app development.",
       },
     },
     {
@@ -391,12 +391,7 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {featuredProjects.map((project) => (
                 <AnimateOnScroll key={project.title}>
-                  <a
-                    href={project.storeUrl}
-                    target="_blank"
-                    rel="noopener"
-                    className="group block p-5 rounded-2xl border border-border bg-background-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-accent/30 cursor-pointer"
-                  >
+                  <article className="group p-5 rounded-2xl border border-border bg-background-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-accent/30">
                     {/* Header: Icon + Meta */}
                     <div className="flex gap-4 mb-3">
                       <Image
@@ -408,11 +403,15 @@ export default function Home() {
                         className="rounded-xl w-14 h-14 flex-shrink-0"
                       />
                       <div className="flex flex-col justify-center gap-0.5">
-                        <span
-                          className={`text-[0.68rem] font-bold uppercase tracking-wider ${platformColor[project.platform]}`}
+                        <a
+                          href={project.storeUrl}
+                          target="_blank"
+                          rel="noopener"
+                          aria-label={`${platformLabel[project.platform]} store page for ${project.title}`}
+                          className={`text-[0.68rem] font-bold uppercase tracking-wider transition-opacity hover:opacity-70 ${platformColor[project.platform]}`}
                         >
                           {platformLabel[project.platform]}
-                        </span>
+                        </a>
                         {project.downloads && (
                           <span className="text-[0.72rem] font-medium text-text-muted">
                             {project.downloads}
@@ -445,7 +444,7 @@ export default function Home() {
                         </span>
                       ))}
                     </div>
-                  </a>
+                  </article>
                 </AnimateOnScroll>
               ))}
             </div>
@@ -594,7 +593,7 @@ export default function Home() {
                       Email
                     </span>
                     <span className="text-[0.92rem] text-foreground group-hover:text-accent transition-colors">
-                      link2nadeemaslam@gmail.com
+                      nadeemaslam.dev@gmail.com
                     </span>
                     <span className="text-text-muted group-hover:translate-x-1 transition-transform">
                       &rarr;
@@ -610,7 +609,7 @@ export default function Home() {
                       LinkedIn
                     </span>
                     <span className="text-[0.92rem] text-foreground group-hover:text-accent transition-colors">
-                      nadeem-aslam-android
+                      nadeem-aslam-dev
                     </span>
                     <span className="text-text-muted group-hover:translate-x-1 transition-transform">
                       &rarr;

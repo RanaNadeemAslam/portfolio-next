@@ -275,7 +275,7 @@ export const projects: Project[] = [
     platform: 'both',
     description:
       'Healthcare communication platform for seamless care. Features voicemail, secure messaging, calendar scheduling, and on-call management for medical professionals.',
-    tags: ['Kotlin', 'Firebase', 'REST APIs', 'Healthcare', 'Secure Messaging'],
+    tags: ['Flutter', 'Dart', 'Firebase', 'Healthcare', 'Secure Messaging'],
     stat: '',
     storeUrl:
       'https://play.google.com/store/apps/details?id=net.doctoc.doctoc',
@@ -294,7 +294,7 @@ export const projects: Project[] = [
     platform: 'android',
     description:
       'Aggregated global news reader pulling from top sources like Forbes, CNN, BBC, and NYT. Multi-country support, search, and a clean reading experience.',
-    tags: ['Kotlin', 'REST APIs', 'Caching', 'Material Design'],
+    tags: ['Flutter', 'Dart', 'REST APIs', 'Caching'],
     stat: 'News & Media',
     storeUrl:
       'https://play.google.com/store/apps/details?id=com.newshub.free.news.magazine',
@@ -315,7 +315,7 @@ export const projects: Project[] = [
     platform: 'android',
     description:
       'Professional invoice and billing app with 50+ custom templates, logo upload, digital signatures, and one-tap share/export. Built for freelancers and businesses.',
-    tags: ['Kotlin', 'PDF Generation', 'Templates', 'Material Design'],
+    tags: ['Flutter', 'Dart', 'PDF Generation', 'Templates'],
     stat: 'Business & Productivity',
     storeUrl:
       'https://play.google.com/store/apps/details?id=com.invoice.bill.ai',
@@ -425,16 +425,16 @@ export const faqItems: FaqItem[] = [
   {
     question: 'How can I hire you?',
     answer:
-      'You can hire me through several channels depending on your preference. For freelance projects, I am available on Fiverr at fiverr.com/nadeem585 where I have 69 five-star reviews as a Level 2 Seller. You can also contact me directly via email at link2nadeemaslam@gmail.com or through WhatsApp at +92 301 531 1113 for a faster initial conversation. I am available for both short-term projects like bug fixes and feature additions as well as long-term contracts for full app development. My typical engagement starts with a free consultation to understand your requirements, followed by a detailed proposal with timeline and cost breakdown.',
+      'You can hire me through several channels depending on your preference. For freelance projects, I am available on Fiverr at fiverr.com/nadeem585 where I have 69 five-star reviews as a Level 2 Seller. You can also contact me directly via email at nadeemaslam.dev@gmail.com or through WhatsApp at +92 301 531 1113 for a faster initial conversation. I am available for both short-term projects like bug fixes and feature additions as well as long-term contracts for full app development. My typical engagement starts with a free consultation to understand your requirements, followed by a detailed proposal with timeline and cost breakdown.',
   },
 ];
 
 export const socialLinks: SocialLinks = {
-  linkedin: 'https://www.linkedin.com/in/nadeem-aslam-android/',
+  linkedin: 'https://www.linkedin.com/in/nadeem-aslam-dev/',
   github: 'https://github.com/RanaNadeemAslam',
   fiverr: 'https://www.fiverr.com/nadeem585',
   whatsapp: 'https://wa.me/923015311113',
-  email: 'mailto:link2nadeemaslam@gmail.com',
+  email: 'mailto:nadeemaslam.dev@gmail.com',
 };
 
 export const about: About = {
